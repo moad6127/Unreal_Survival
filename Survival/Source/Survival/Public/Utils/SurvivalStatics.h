@@ -11,6 +11,9 @@
  * 
  */
 class UEnhancedInputLocalPlayerSubsystem;
+class ACharacter;
+class AController;
+class APlayerController;
 
 UCLASS()
 class SURVIVAL_API USurvivalStatics : public UBlueprintFunctionLibrary
@@ -27,7 +30,7 @@ public:
      * @param MappingContext     등록할 Input Mapping Context
      * @param Priority           우선순위 (높을수록 먼저 처리됨, 기본값 0)
      */
-    UFUNCTION(BlueprintCallable, Category = "Locomotion|Input")
+    UFUNCTION(BlueprintCallable, Category = "Statics|Input")
     static void LinkInputMappingContext(APlayerController* PlayerController,UInputMappingContext* MappingContext,int32 Priority = 0);
 
     /**
@@ -36,7 +39,7 @@ public:
      * @param PlayerController   대상 플레이어 컨트롤러
      * @param MappingContext     제거할 Input Mapping Context
      */
-    UFUNCTION(BlueprintCallable, Category = "Locomotion|Input")
+    UFUNCTION(BlueprintCallable, Category = "Statics|Input")
     static void UnlinkInputMappingContext(APlayerController* PlayerController,UInputMappingContext* MappingContext);
 
     /**
@@ -47,11 +50,21 @@ public:
      * @param NewMappingContext  추가할 새 Context
      * @param Priority           새 Context의 우선순위
      */
-    UFUNCTION(BlueprintCallable, Category = "Locomotion|Input")
+    UFUNCTION(BlueprintCallable, Category = "Statics|Input")
     static void SwitchInputMappingContext(APlayerController* PlayerController,UInputMappingContext* OldMappingContext,UInputMappingContext* NewMappingContext,int32 Priority = 0);
 
     /*Component 헬퍼*/
 
+    /*
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Statics|Component")
+    static ACharacter* GetCharacterFromComponent(const UActorComponent* Component);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Statics|Component")
+    static AController* GetControllerFromComponent(const UActorComponent* Component);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Statics|Component")
+    static APlayerController* GetPlayerControllerFromComponent(const UActorComponent* Component);
 private:
 
     /**

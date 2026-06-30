@@ -3,6 +3,9 @@
 
 #include "Utils/SurvivalStatics.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 
 UEnhancedInputLocalPlayerSubsystem* USurvivalStatics::GetEnhancedInputSubsystem(APlayerController* PlayerController)
@@ -53,4 +56,32 @@ void USurvivalStatics::SwitchInputMappingContext(APlayerController* PlayerContro
 {
 	UnlinkInputMappingContext(PlayerController, OldMappingContext);
 	LinkInputMappingContext(PlayerController, NewMappingContext, Priority);
+}
+
+ACharacter* USurvivalStatics::GetCharacterFromComponent(const UActorComponent* Component)
+{
+	if (!IsValid(Component))
+	{
+		return nullptr;
+	}
+	return Cast<ACharacter>(Component->GetOwner());
+}
+
+AController* USurvivalStatics::GetControllerFromComponent(const UActorComponent* Component)
+{
+	if (!IsValid(Component))
+	{
+		return nullptr;
+	}
+	APawn* OwnerPawn = Cast<APawn>(Component->GetOwner());
+	if (!IsValid(OwnerPawn))
+	{
+		return nullptr;
+	}
+	return OwnerPawn->GetController();;
+}
+
+APlayerController* USurvivalStatics::GetPlayerControllerFromComponent(const UActorComponent* Component)
+{
+	return Cast<APlayerController>(GetControllerFromComponent(Component));
 }
