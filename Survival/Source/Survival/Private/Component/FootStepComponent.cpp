@@ -16,6 +16,8 @@ void UFootStepComponent::Execute_FootStep_Logic(USkeletalMeshComponent* MeshComp
 	if (bSuccess)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Surface Type: %s"), *UEnum::GetValueAsString(FootStepSurfaceType.GetValue()));
+		PlayFootStepSound(FootStepSurfaceType, HitLocation);
+		//TODO : 파티클 이펙트 
 	}
 }
 
@@ -50,4 +52,13 @@ FVector UFootStepComponent::GetNotifySocketLocation(USkeletalMeshComponent* Mesh
 {
 	FName SocketName = IsRightFoot ? FName("foot_r") : FName("foot_l");
 	return MeshComp->GetSocketLocation(SocketName);;
+}
+
+void UFootStepComponent::PlayFootStepSound(const TEnumAsByte<EPhysicalSurface>& SurfaceType, const FVector& Location)
+{
+	USoundBase**  SurfaceSound = FootStepSoundMap.Find(SurfaceType);
+	if (*SurfaceSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetOwner(), *SurfaceSound, Location);
+	}
 }
