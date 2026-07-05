@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Component/ExtendedMovementComponent.h"
+#include "Component/Movement/ExtendedMovementComponent.h"
 #include "BasicMovementComponent.generated.h"
 
 /**

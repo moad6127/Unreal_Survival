@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/BasicMovementComponent.h"
+#include "Component/Movement/BasicMovementComponent.h"
 #include "Utils/SurvivalStatics.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/Character.h"

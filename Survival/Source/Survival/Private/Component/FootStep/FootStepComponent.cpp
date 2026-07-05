@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/FootStepComponent.h"
+#include "Component/FootStep/FootStepComponent.h"
 #include "Kismet/GameplayStatics.h" 
 #include "PhysicalMaterials/PhysicalMaterial.h"
 

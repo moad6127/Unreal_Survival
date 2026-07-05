@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Component/ExtenedFootStepComponent.h"
+#include "Component/FootStep/ExtenedFootStepComponent.h"
 #include "FootStepComponent.generated.h"
 
 /**

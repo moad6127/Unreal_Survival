@@ -19,7 +19,8 @@ public class Survival : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-            "PhysicsCore"
+            "PhysicsCore",
+            "CommonUI"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

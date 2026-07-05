@@ -1,21 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/ExtendedMovementComponent.h"
+#include "Component/UI/ExtenedUIComponent.h"
 
-UExtendedMovementComponent::UExtendedMovementComponent()
+UExtenedUIComponent::UExtenedUIComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
 }
 
 
-void UExtendedMovementComponent::BeginPlay()
+void UExtenedUIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	
 }
-
-
 

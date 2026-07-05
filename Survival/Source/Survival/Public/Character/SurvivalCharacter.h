@@ -11,6 +11,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UBasicMovementComponent;
 class UFootStepComponent;
+class UInputUIComponent;
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -37,6 +39,9 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UFootStepComponent> FootStepComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputUIComponent> UIInputComponent;
 protected:
 
 

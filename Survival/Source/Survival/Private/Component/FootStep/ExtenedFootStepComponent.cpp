@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Component/ExtenedFootStepComponent.h"
+#include "Component/FootStep/ExtenedFootStepComponent.h"
 
 
 UExtenedFootStepComponent::UExtenedFootStepComponent()
