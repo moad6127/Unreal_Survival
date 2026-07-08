@@ -21,7 +21,7 @@ protected:
 	* AnimNotify에서 실행되는 로직이다
 	*/
 	virtual void Execute_FootStep_Logic(USkeletalMeshComponent* MeshComp, bool IsRightFoot) override;
-
+	
 private:
 	/*
 	* 라인트래이스를 사용해서 현재 Surface타입과 위치를 알아내기
@@ -32,6 +32,11 @@ private:
 	*/
 	FVector GetNotifySocketLocation(USkeletalMeshComponent* MeshComp, bool IsRightFoot);
 	void PlayFootStepSound(const TEnumAsByte<EPhysicalSurface>& SurfaceType, const FVector& Location);
+
+	/*
+	* Test용도
+	*/
+	FName GetSurfaceName(TEnumAsByte<EPhysicalSurface> SurfaceType);
 
 	UPROPERTY(EditDefaultsOnly, Category = "FootStep")
 	TMap<TEnumAsByte<EPhysicalSurface>, USoundBase*> FootStepSoundMap;

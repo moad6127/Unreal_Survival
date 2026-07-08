@@ -41,7 +41,8 @@ void UBasicMovementComponent::BeginPlay()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &UBasicMovementComponent::Input_JumpStarted);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &UBasicMovementComponent::Input_JumpStopped);
 	}
-
+	FInputModeGameOnly InputMode;
+	PC->SetInputMode(InputMode);
 }
 
 void UBasicMovementComponent::Move(const FInputActionValue& Value)

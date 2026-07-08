@@ -4,6 +4,8 @@
 #include "Component/FootStep/FootStepComponent.h"
 #include "Kismet/GameplayStatics.h" 
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "PhysicsEngine/PhysicsSettings.h"
+
 
 
 void UFootStepComponent::Execute_FootStep_Logic(USkeletalMeshComponent* MeshComp, bool IsRightFoot)
@@ -15,7 +17,9 @@ void UFootStepComponent::Execute_FootStep_Logic(USkeletalMeshComponent* MeshComp
 	SurfaceTypeDetection(MeshComp, IsRightFoot, FootStepSurfaceType, HitLocation, bSuccess);
 	if (bSuccess)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Surface Type: %s"), *UEnum::GetValueAsString(FootStepSurfaceType.GetValue()));
+		FName Name = GetSurfaceName(FootStepSurfaceType);
+		FString DisplayName = Name.IsNone() ? UEnum::GetValueAsString(FootStepSurfaceType.GetValue()): Name.ToString();
+		UE_LOG(LogTemp, Warning, TEXT("Surface Type: %s"), *DisplayName);
 		PlayFootStepSound(FootStepSurfaceType, HitLocation);
 		//TODO : 파티클 이펙트 
 	}
@@ -46,6 +50,17 @@ void UFootStepComponent::SurfaceTypeDetection(USkeletalMeshComponent* MeshComp, 
 		OutLocation = FVector::ZeroVector;
 		bOutSuccess = false;
 	}
+	if (HitResult.PhysMaterial.IsValid())
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("%s"),
+			*HitResult.PhysMaterial->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("No Physical Material"));
+	}
 }
 
 FVector UFootStepComponent::GetNotifySocketLocation(USkeletalMeshComponent* MeshComp, bool IsRightFoot)
@@ -61,4 +76,17 @@ void UFootStepComponent::PlayFootStepSound(const TEnumAsByte<EPhysicalSurface>& 
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetOwner(), *SurfaceSound, Location);
 	}
+}
+
+FName UFootStepComponent::GetSurfaceName(TEnumAsByte<EPhysicalSurface> SurfaceType)
+{
+	const UPhysicsSettings* PhysicsSettings = UPhysicsSettings::Get();
+	for (const FPhysicalSurfaceName& SurfaceName : PhysicsSettings->PhysicalSurfaces)
+	{
+		if (SurfaceName.Type == SurfaceType.GetValue())
+		{
+			return SurfaceName.Name;
+		}
+	}
+	return NAME_None;
 }
