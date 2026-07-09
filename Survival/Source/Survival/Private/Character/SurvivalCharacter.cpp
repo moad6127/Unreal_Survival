@@ -14,6 +14,7 @@
 #include "Component/Movement/BasicMovementComponent.h"
 #include "Component/FootStep/FootStepComponent.h"
 #include "Component/UI/InputUIComponent.h"
+#include "Component/Replication/ReplicationComponent.h"
 
 ASurvivalCharacter::ASurvivalCharacter()
 {
@@ -56,6 +57,7 @@ ASurvivalCharacter::ASurvivalCharacter()
 	BasicMovementComponent = CreateDefaultSubobject<UBasicMovementComponent>(TEXT("BasicMovementInputComponent"));
 	FootStepComponent = CreateDefaultSubobject<UFootStepComponent>(TEXT("FootStepComponent"));
 	UIInputComponent = CreateDefaultSubobject<UInputUIComponent>(TEXT("UIComponent"));
+	ReplicationComponent = CreateDefaultSubobject<UReplicationComponent>(TEXT("ReplicationComponent"));
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
