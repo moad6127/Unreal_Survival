@@ -13,6 +13,8 @@ class UBasicMovementComponent;
 class UFootStepComponent;
 class UInputUIComponent;
 class UReplicationComponent;
+class UInteractionComponent;
+
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -25,7 +27,6 @@ UCLASS(abstract)
 class ASurvivalCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
@@ -46,6 +47,9 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UReplicationComponent> ReplicationComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInteractionComponent> InteractionComponent;
 protected:
 
 
