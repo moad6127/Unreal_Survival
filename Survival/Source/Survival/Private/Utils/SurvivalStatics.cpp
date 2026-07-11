@@ -7,6 +7,9 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Camera/PlayerCameraManager.h"
+
 
 UEnhancedInputLocalPlayerSubsystem* USurvivalStatics::GetEnhancedInputSubsystem(APlayerController* PlayerController)
 {
@@ -84,4 +87,31 @@ AController* USurvivalStatics::GetControllerFromComponent(const UActorComponent*
 APlayerController* USurvivalStatics::GetPlayerControllerFromComponent(const UActorComponent* Component)
 {
 	return Cast<APlayerController>(GetControllerFromComponent(Component));
+}
+
+bool USurvivalStatics::TraceFromActiveCamera(APlayerController* PlayerController, TEnumAsByte<ETraceTypeQuery> TraceChannel, const TArray<AActor*>& ActorsToIgnore, float FrontOffsetStartPosition, float TraceLength, FHitResult& OutHit)
+{
+	if (!IsValid(PlayerController) || !IsValid(PlayerController->PlayerCameraManager))
+	{
+		return false;
+	}
+
+	APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager;
+
+	const FVector CameraLocation = CameraManager->GetCameraLocation();
+	const FVector CameraForward = CameraManager->GetCameraRotation().Vector();
+
+	const FVector TraceStart = CameraLocation + (CameraForward * FrontOffsetStartPosition);
+	const FVector TraceEnd = CameraLocation + (CameraForward * TraceLength);
+
+	return UKismetSystemLibrary::LineTraceSingle(
+		PlayerController,
+		TraceStart,
+		TraceEnd,
+		TraceChannel,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::ForDuration,
+		OutHit,
+		true);
 }

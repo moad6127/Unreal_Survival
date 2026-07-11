@@ -65,6 +65,20 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Statics|Component")
     static APlayerController* GetPlayerControllerFromComponent(const UActorComponent* Component);
+
+    /*
+    * LineTrace ÇÔ¼ö
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Tracing")
+    static bool TraceFromActiveCamera(
+        APlayerController* PlayerController,
+        TEnumAsByte<ETraceTypeQuery> TraceChannel,
+        const TArray<AActor*>& ActorsToIgnore,
+        float FrontOffsetStartPosition,
+        float TraceLength,
+        FHitResult& OutHit);
+
+
 private:
 
     /**
