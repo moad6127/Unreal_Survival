@@ -51,4 +51,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction|Trace")
 	float TraceLength = 1000.f;
+
+	TWeakObjectPtr<AActor> ThisActor;
+	TWeakObjectPtr<AActor> LastActor;
 };

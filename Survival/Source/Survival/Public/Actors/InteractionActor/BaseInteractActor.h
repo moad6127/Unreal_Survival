@@ -9,6 +9,7 @@
 #include "BaseInteractActor.generated.h"
 
 class USphereComponent;
+class UWidgetComponent;
 
 UCLASS()
 class SURVIVAL_API ABaseInteractActor : public AActor, public ICanInteractInterface, public IInteractInterface
@@ -35,6 +36,8 @@ public:
 	virtual FText GetInteractText_Implementation(AController* InstigatorController) override;
 	virtual FVector GetInteractTextLocation_Implementation() override;
 	virtual bool ShouldExecuteInteractionOnServer_Implementation() override;
+	virtual void ShowInteractPrompt_Implementation() override;
+	virtual void HideInteractPrompt_Implementation() override;
 	/*
 	* ICanInteractInterface
 	*/
@@ -44,15 +47,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USphereComponent> SphereComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> InteractWidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bIsInteractable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FText InteractText;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	FVector InteractTextLocation;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	bool bExecuteInteractionOnServer;
 };

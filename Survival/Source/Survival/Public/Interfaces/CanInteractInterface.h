@@ -39,6 +39,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	bool ShouldExecuteInteractionOnServer();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void ShowInteractPrompt();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	void HideInteractPrompt();
+
 	/*
 	* Optional
 	*/

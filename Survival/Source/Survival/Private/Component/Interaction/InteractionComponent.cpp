@@ -4,6 +4,8 @@
 #include "Component/Interaction/InteractionComponent.h"
 #include "Utils/SurvivalStatics.h"
 #include "EnhancedInputComponent.h"
+#include "Interfaces/InteractInterface.h"
+#include "Interfaces/CanInteractInterface.h"
 
 void UInteractionComponent::BeginPlay()
 {
@@ -55,12 +57,38 @@ void UInteractionComponent::LineTraceInteraction()
 		FrontOffsetStartPosition,
 		TraceLength,
 		Hit);
-	if (bHit)
-	{
-		HandleInteraction(Hit.GetActor());
-	}
+
+	HandleInteraction(Hit.GetActor());
 }
 
 void UInteractionComponent::HandleInteraction(AActor* HitActor)
 {
+	LastActor = ThisActor;
+	ThisActor = HitActor;
+
+	if (ThisActor == LastActor)
+	{
+		return;
+	}
+
+	if (LastActor.IsValid())
+	{
+		ICanInteractInterface::Execute_HideInteractPrompt(LastActor.Get());
+	}
+
+	if (ThisActor.IsValid() && ThisActor->Implements<UCanInteractInterface>())
+	{
+		if (ICanInteractInterface::Execute_CanInteract(ThisActor.Get(), OwnerPlayerController))
+		{
+			ICanInteractInterface::Execute_ShowInteractPrompt(ThisActor.Get());
+		}
+		else
+		{
+			ThisActor = nullptr;
+		}
+	}
+	else
+	{
+		ThisActor = nullptr;
+	}
 }
