@@ -111,7 +111,7 @@ bool USurvivalStatics::TraceFromActiveCamera(APlayerController* PlayerController
 		TraceChannel,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		OutHit,
 		true);
 }

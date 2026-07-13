@@ -23,6 +23,8 @@ ABaseInteractActor::ABaseInteractActor()
 	InteractWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	InteractWidgetComponent->SetDrawSize(FVector2D(100.f, 50.f));
 	InteractWidgetComponent->SetVisibility(false);
+
+	SetReplicates(true);
 }
 
 void ABaseInteractActor::Interact_Implementation(AController* InstigatorController)

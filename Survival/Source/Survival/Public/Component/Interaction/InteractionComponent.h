@@ -25,6 +25,10 @@ private:
 	void StartCanInteractTrace();
 	void LineTraceInteraction();
 	void HandleInteraction(AActor* HitActor);
+	void TargetInteract();
+
+	UFUNCTION(Server,Reliable)
+	void Server_TargetInteract(AActor* ActorToInteract, AController* InstigatingController);
 
 	UPROPERTY()
 	TObjectPtr<APlayerController> OwnerPlayerController;
