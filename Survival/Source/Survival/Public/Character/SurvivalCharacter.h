@@ -14,6 +14,7 @@ class UFootStepComponent;
 class UInputUIComponent;
 class UReplicationComponent;
 class UInteractionComponent;
+class UAttributeComponent;
 
 
 
@@ -50,6 +51,9 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInteractionComponent> InteractionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAttributeComponent> AttributeComponent;
 protected:
 
 

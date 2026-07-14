@@ -8,6 +8,8 @@
 
 class UInputMappingContext;
 class UUserWidget;
+class UAttributeComponent;
+
 
 /**
  *  Basic PlayerController class for a third person game
@@ -17,6 +19,10 @@ UCLASS(abstract)
 class ASurvivalPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attribute")
+	UAttributeComponent* GetAttributeManager();
 	
 protected:
 

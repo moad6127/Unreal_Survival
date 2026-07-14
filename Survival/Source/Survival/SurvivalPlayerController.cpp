@@ -8,6 +8,12 @@
 #include "Blueprint/UserWidget.h"
 #include "Survival.h"
 #include "Widgets/Input/SVirtualJoystick.h"
+#include "Utils/SurvivalStatics.h"
+
+UAttributeComponent* ASurvivalPlayerController::GetAttributeManager()
+{
+	return USurvivalStatics::GetComponentFromController<UAttributeComponent>(this);
+}
 
 void ASurvivalPlayerController::BeginPlay()
 {

@@ -66,6 +66,49 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Statics|Component")
     static APlayerController* GetPlayerControllerFromComponent(const UActorComponent* Component);
 
+
+    /*
+    * Component 헬퍼 (역방향: 소유자 -> 컴포넌트)
+    */
+    /**
+     * Actor에서 원하는 타입의 컴포넌트를 가져옵니다.
+     *
+     * @param Actor  컴포넌트를 찾을 대상 Actor
+     * @return 해당 타입의 컴포넌트 (없으면 nullptr)
+     */
+    template<typename T>
+    static T* GetComponentFromActor(AActor* Actor)
+    {
+        return Actor ? Actor->FindComponentByClass<T>() : nullptr;
+    }
+
+    /**
+     * Controller에서 원하는 타입의 컴포넌트를 가져옵니다.
+     *
+     * @param Controller  대상 Controller
+     * @return 해당 타입의 컴포넌트 (Pawn이 없거나 컴포넌트가 없으면 nullptr)
+     */
+    template<typename T>
+    static T* GetComponentFromController(AController* Controller)
+    {
+        APawn* Pawn = Controller ? Controller->GetPawn() : nullptr;
+        return Pawn ? Pawn->FindComponentByClass<T>() : nullptr;
+    }
+
+    /**
+     * ActorComponent의 Owner에서 원하는 타입의 컴포넌트를 가져옵니다.
+     *
+     * @param Component  기준이 되는 ActorComponent (예: 이 함수를 호출하는 컴포넌트 자기 자신)
+     * @return 해당 타입의 컴포넌트 (Owner가 없거나 컴포넌트가 없으면 nullptr)
+     */
+    template<typename T>
+    static T* GetComponentFromComponent(const UActorComponent* Component)
+    {
+        AActor* Owner = Component ? Component->GetOwner() : nullptr;
+        return Owner ? Owner->FindComponentByClass<T>() : nullptr;
+    }
+
+
     /*
     * LineTrace 함수
     */
