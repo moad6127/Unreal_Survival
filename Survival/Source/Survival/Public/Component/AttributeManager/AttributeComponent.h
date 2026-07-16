@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class SURVIVAL_API UAttributeComponent : public UExtendedAttributeComponent
 {
@@ -16,7 +17,16 @@ class SURVIVAL_API UAttributeComponent : public UExtendedAttributeComponent
 	
 public:
 
-private:
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void ModifyAttribute(EAttributeTypes AttributeType, float Amount);
 
+
+
+protected:
+
+	virtual void BeginPlay() override;
+
+private:
+	void InitValues();
 
 };

@@ -9,6 +9,7 @@
 #include "Survival.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 #include "Utils/SurvivalStatics.h"
+#include "HUD/Survival_HUD.h"
 
 UAttributeComponent* ASurvivalPlayerController::GetAttributeManager()
 {
@@ -63,6 +64,16 @@ void ASurvivalPlayerController::SetupInputComponent()
 				}
 			}
 		}
+	}
+}
+
+void ASurvivalPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	if (ASurvival_HUD* SurvivalHUD = GetHUD<ASurvival_HUD>())
+	{
+		SurvivalHUD->InitInGameHUD(this);
 	}
 }
 

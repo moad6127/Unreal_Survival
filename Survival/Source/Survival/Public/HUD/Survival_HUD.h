@@ -9,6 +9,9 @@
 /**
  * 
  */
+class UUserWidget;
+class APlayerController;
+
 
 UCLASS()
 class SURVIVAL_API ASurvival_HUD : public AHUD
@@ -18,5 +21,12 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void InitInGameHUD(APlayerController* OwningController);
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	TSubclassOf<UUserWidget> InGameHUDWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> InGameHUDWidget;
 };
