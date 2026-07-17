@@ -118,5 +118,11 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float HydrationConsumeRate = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	float FoodZeroDamage = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	float HydrationZeroDamage = 5.f;
 		
 };

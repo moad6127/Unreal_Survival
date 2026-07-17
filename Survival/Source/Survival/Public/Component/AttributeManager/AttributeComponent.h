@@ -29,4 +29,12 @@ protected:
 private:
 	void InitValues();
 
+	void Die();
+
+
+	UFUNCTION()
+	void HandleHealthChanged(float NewHealth);
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void ApplyStatDamage();
 };
