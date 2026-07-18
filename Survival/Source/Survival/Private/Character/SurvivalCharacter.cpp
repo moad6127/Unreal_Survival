@@ -61,9 +61,16 @@ ASurvivalCharacter::ASurvivalCharacter()
 	ReplicationComponent = CreateDefaultSubobject<UReplicationComponent>(TEXT("ReplicationComponent"));
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+	AttributeComponent->OnDeath.AddDynamic(this, &ASurvivalCharacter::OnDeath);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	
+}
+
+void ASurvivalCharacter::OnDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Character : %s Death!"),*GetName());
 }
 
 

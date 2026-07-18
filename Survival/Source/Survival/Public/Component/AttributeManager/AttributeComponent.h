@@ -17,10 +17,6 @@ class SURVIVAL_API UAttributeComponent : public UExtendedAttributeComponent
 	
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
-	void ModifyAttribute(EAttributeTypes AttributeType, float Amount);
-
-
 
 protected:
 
@@ -28,12 +24,6 @@ protected:
 
 private:
 	void InitValues();
-
-	void Die();
-
-
-	UFUNCTION()
-	void HandleHealthChanged(float NewHealth);
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	void ApplyStatDamage();

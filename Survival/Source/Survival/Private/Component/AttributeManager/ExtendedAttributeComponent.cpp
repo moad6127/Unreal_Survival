@@ -2,10 +2,21 @@
 
 
 #include "Component/AttributeManager/ExtendedAttributeComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UExtendedAttributeComponent::UExtendedAttributeComponent()
 {
+    SetIsReplicatedByDefault(true);
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UExtendedAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UExtendedAttributeComponent, CurrentHealth);
+    DOREPLIFETIME(UExtendedAttributeComponent, CurrentFood);
+    DOREPLIFETIME(UExtendedAttributeComponent, CurrentHydration);
 }
 
 
@@ -13,8 +24,50 @@ void UExtendedAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    if(AActor* Owner = GetOwner())
+    {
+        Owner->OnTakeAnyDamage.AddDynamic(this, &UExtendedAttributeComponent::HandleTakeAnyDamage);
+    }
 }
 
+void UExtendedAttributeComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+    Server_ApplyDamage(Damage, DamageType, InstigatedBy, DamageCauser);
+}
+
+void UExtendedAttributeComponent::Server_ApplyDamage_Implementation(float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+    if (GetCurrentHealth() <= 0.f || Damage <= 0.f)
+    {
+        return;
+    }
+
+    ModifyAttribute(EAttributeTypes::Health, -Damage);
+
+    if (!bIsDead && CurrentHealth <= 0.f)
+    {
+        bIsDead = true;
+        OnDeath.Broadcast();
+    }
+}
+
+void UExtendedAttributeComponent::ModifyAttribute(EAttributeTypes AttributeType, float Amount)
+{
+    switch (AttributeType)
+    {
+    case EAttributeTypes::Health:
+        SetCurrentHealth(GetCurrentHealth() + Amount);
+        break;
+    case EAttributeTypes::Food:
+        SetCurrentFood(GetCurrentFood() + Amount);
+        break;
+    case EAttributeTypes::Hydration:
+        SetCurrentHydration(GetCurrentHydration() + Amount);
+        break;
+    default:
+        break;
+    }
+}
 
 
 void UExtendedAttributeComponent::SetMaxHealth(float InHealth)
@@ -68,6 +121,27 @@ void UExtendedAttributeComponent::SetCurrentHydration(float InHydration)
     }
 
     CurrentHydration = ClampedValue;
+    OnCurrentHydrationChanged.Broadcast(CurrentHydration);
+}
+
+void UExtendedAttributeComponent::OnRep_CurrentHealth()
+{
+    OnCurrentHealthChanged.Broadcast(CurrentHealth);
+
+    if (!bIsDead && CurrentHealth <= 0.f)
+    {
+        bIsDead = true;
+        OnDeath.Broadcast();
+    }
+}
+
+void UExtendedAttributeComponent::OnRep_CurrentFood()
+{
+    OnCurrentFoodChanged.Broadcast(CurrentFood);
+}
+
+void UExtendedAttributeComponent::OnRep_CurrentHydration()
+{
     OnCurrentHydrationChanged.Broadcast(CurrentHydration);
 }
 

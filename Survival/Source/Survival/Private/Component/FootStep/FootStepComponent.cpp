@@ -17,9 +17,7 @@ void UFootStepComponent::Execute_FootStep_Logic(USkeletalMeshComponent* MeshComp
 	SurfaceTypeDetection(MeshComp, IsRightFoot, FootStepSurfaceType, HitLocation, bSuccess);
 	if (bSuccess)
 	{
-		FName Name = GetSurfaceName(FootStepSurfaceType);
-		FString DisplayName = Name.IsNone() ? UEnum::GetValueAsString(FootStepSurfaceType.GetValue()): Name.ToString();
-		UE_LOG(LogTemp, Warning, TEXT("Surface Type: %s"), *DisplayName);
+
 		PlayFootStepSound(FootStepSurfaceType, HitLocation);
 		//TODO : 파티클 이펙트 
 	}
@@ -50,17 +48,7 @@ void UFootStepComponent::SurfaceTypeDetection(USkeletalMeshComponent* MeshComp, 
 		OutLocation = FVector::ZeroVector;
 		bOutSuccess = false;
 	}
-	if (HitResult.PhysMaterial.IsValid())
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("%s"),
-			*HitResult.PhysMaterial->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("No Physical Material"));
-	}
+
 }
 
 FVector UFootStepComponent::GetNotifySocketLocation(USkeletalMeshComponent* MeshComp, bool IsRightFoot)

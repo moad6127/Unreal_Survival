@@ -68,11 +68,11 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-protected:
-
 
 private:
 
+	UFUNCTION()
+	void OnDeath();
 
 
 };

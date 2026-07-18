@@ -20,22 +20,9 @@ void UAttributeComponent::InitValues()
     OnCurrentFoodChanged.Broadcast(CurrentFood);
     OnCurrentHydrationChanged.Broadcast(CurrentHydration);
 
-    OnCurrentHealthChanged.AddDynamic(this, &UAttributeComponent::HandleHealthChanged);
 }
 
-void UAttributeComponent::Die()
-{
-    UE_LOG(LogTemp, Warning, TEXT("Character Health Zero!! Die!!"));
-}
 
-void UAttributeComponent::HandleHealthChanged(float NewHealth)
-{
-    
-    if (NewHealth <= 0.f)
-    {
-        Die();
-    }
-}
 
 void UAttributeComponent::ApplyStatDamage()
 {
@@ -49,20 +36,3 @@ void UAttributeComponent::ApplyStatDamage()
     }
 }
 
-void UAttributeComponent::ModifyAttribute(EAttributeTypes AttributeType, float Amount)
-{
-    switch (AttributeType)
-    {
-    case EAttributeTypes::Health:
-        SetCurrentHealth(GetCurrentHealth() + Amount);
-        break;
-    case EAttributeTypes::Food:
-        SetCurrentFood(GetCurrentFood() + Amount);
-        break;
-    case EAttributeTypes::Hydration:
-        SetCurrentHydration(GetCurrentHydration() + Amount);
-        break;
-    default:
-        break;
-    }
-}

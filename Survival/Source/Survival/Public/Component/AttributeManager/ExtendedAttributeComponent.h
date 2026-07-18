@@ -7,6 +7,8 @@
 #include "ExtendedAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, InValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
+
 
 
 UENUM(BlueprintType)
@@ -26,6 +28,12 @@ class SURVIVAL_API UExtendedAttributeComponent : public UActorComponent
 
 public:	
 	UExtendedAttributeComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	void ModifyAttribute(EAttributeTypes AttributeType, float Amount);
+
 
 
 
@@ -47,6 +55,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnAttributeChanged OnMaxHydrationChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "Attributes")
+	FOnDeath OnDeath;
 
 
 	/*
@@ -95,6 +105,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ApplyDamage(float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION()
+	void OnRep_CurrentHealth();
+
+	UFUNCTION()
+	void OnRep_CurrentFood();
+
+	UFUNCTION()
+	void OnRep_CurrentHydration();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float MaxHealth = 100.f;
 
@@ -104,13 +129,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float MaxHydration = 100.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float CurrentHealth = 50.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentFood, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float CurrentFood = 50.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHydration, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float CurrentHydration = 50.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
@@ -124,5 +149,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
 	float HydrationZeroDamage = 5.f;
-		
+	
+	bool bIsDead = false;
 };
