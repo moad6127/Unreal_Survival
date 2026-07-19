@@ -77,6 +77,16 @@ void ASurvivalPlayerController::OnPossess(APawn* aPawn)
 	}
 }
 
+void ASurvivalPlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+
+	if (ASurvival_HUD* SurvivalHUD = GetHUD<ASurvival_HUD>())
+	{
+		SurvivalHUD->InitInGameHUD(this);
+	}
+}
+
 bool ASurvivalPlayerController::ShouldUseTouchControls() const
 {
 	// are we on a mobile platform? Should we force touch?

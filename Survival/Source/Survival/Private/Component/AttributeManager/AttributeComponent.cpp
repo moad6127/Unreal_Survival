@@ -9,6 +9,11 @@ void UAttributeComponent::BeginPlay()
     Super::BeginPlay();
 
     InitValues();
+
+    if (GetOwner()->HasAuthority())
+    {
+        StartStatConsumeTimer();
+    }
 }
 
 void UAttributeComponent::InitValues()
@@ -34,5 +39,23 @@ void UAttributeComponent::ApplyStatDamage()
     {
         UGameplayStatics::ApplyDamage(GetOwner(), HydrationZeroDamage, nullptr, nullptr, nullptr);
     }
+}
+
+void UAttributeComponent::StartStatConsumeTimer()
+{
+    GetWorld()->GetTimerManager().SetTimer(
+        StatConsumeTimer,
+        this,
+        &UAttributeComponent::HandleStatConsumeTick,
+        StatConsumeRate,
+        true);
+}
+
+void UAttributeComponent::HandleStatConsumeTick()
+{
+    ModifyAttribute(EAttributeTypes::Food, -FoodConsumeDamage);
+    ModifyAttribute(EAttributeTypes::Hydration, -HydrationConsumeDamage);
+
+    ApplyStatDamage();
 }
 

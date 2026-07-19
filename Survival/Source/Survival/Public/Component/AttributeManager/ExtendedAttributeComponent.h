@@ -120,35 +120,23 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentHydration();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float MaxHealth = 100.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float MaxFood = 100.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float MaxHydration = 100.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth, EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float CurrentHealth = 50.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentFood, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentFood, EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float CurrentFood = 50.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentHydration, EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHydration, EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float CurrentHydration = 50.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
-	float FoodConsumeRate = 0.1f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
-	float HydrationConsumeRate = 0.1f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
-	float FoodZeroDamage = 5.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attribuet", meta = (AllowPrivateAccess = "true"))
-	float HydrationZeroDamage = 5.f;
-	
 	bool bIsDead = false;
 };

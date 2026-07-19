@@ -54,6 +54,8 @@ protected:
 
 	virtual void OnPossess(APawn* aPawn) override;
 
+	virtual void OnRep_Pawn() override;
+
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
 
