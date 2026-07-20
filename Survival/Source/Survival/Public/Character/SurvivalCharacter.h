@@ -15,6 +15,7 @@ class UInputUIComponent;
 class UReplicationComponent;
 class UInteractionComponent;
 class UAttributeComponent;
+class URagdollComponent;
 
 
 
@@ -54,6 +55,10 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAttributeComponent> AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<URagdollComponent> RagdollComponent;
+
 protected:
 
 
