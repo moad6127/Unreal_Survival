@@ -9,9 +9,18 @@
 /**
  * 
  */
+class URespawnHandlerComponent;
+
+
 UCLASS()
 class SURVIVAL_API ASurvival_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+
+	ASurvival_GameMode();
+private:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<URespawnHandlerComponent> RespawnHandlerComponent;
 };

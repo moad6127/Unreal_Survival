@@ -6,9 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "SurvivalGameMode.generated.h"
 
-/**
- *  Simple GameMode for a third person game
- */
+
+
+
 UCLASS(abstract)
 class ASurvivalGameMode : public AGameModeBase
 {
@@ -18,6 +18,9 @@ public:
 	
 	/** Constructor */
 	ASurvivalGameMode();
+
+private:
+
 };
 
 

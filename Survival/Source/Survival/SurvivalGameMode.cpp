@@ -2,6 +2,7 @@
 
 #include "SurvivalGameMode.h"
 
+
 ASurvivalGameMode::ASurvivalGameMode()
 {
 	// stub
