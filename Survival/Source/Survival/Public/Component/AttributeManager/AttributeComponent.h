@@ -16,14 +16,15 @@ class SURVIVAL_API UAttributeComponent : public UExtendedAttributeComponent
 	GENERATED_BODY()
 	
 public:
-
+	UFUNCTION(BlueprintCallable, Category = "Attribute")
+	void InitValues();
 
 protected:
 
 	virtual void BeginPlay() override;
 
 private:
-	void InitValues();
+
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	void ApplyStatDamage();

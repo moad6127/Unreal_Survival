@@ -25,6 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UFUNCTION()
+	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);

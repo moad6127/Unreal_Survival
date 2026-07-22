@@ -5,28 +5,57 @@
 #include "Utils/SurvivalStatics.h"
 #include "EnhancedInputComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Component/AttributeManager/AttributeComponent.h"
 
 void UInputUIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerPlayerController = USurvivalStatics::GetPlayerControllerFromComponent(this);
+	if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+	{
+		OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UInputUIComponent::HandleControllerChanged);
+		if (AController* CurrentController = OwnerPawn->GetController())
+		{
+			HandleControllerChanged(OwnerPawn, nullptr, CurrentController);
+		}
+	}
+	if (UAttributeComponent* AttributeComponent = USurvivalStatics::GetComponentFromActor<UAttributeComponent>(GetOwner()))
+	{
+		AttributeComponent->OnDeath.AddDynamic(this, &UInputUIComponent::HandleUIOnDeath);
+	}
+}
+
+void UInputUIComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
+{
+	OwnerPlayerController = Cast<APlayerController>(NewController);
 	if (!IsValid(OwnerPlayerController))
 	{
 		return;
 	}
 
 	USurvivalStatics::LinkInputMappingContext(OwnerPlayerController, UIMappingContext, 0);
+
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(OwnerPlayerController->InputComponent);
 	if (!IsValid(EnhancedInputComponent))
 	{
 		return;
 	}
+
 	if (OpenAndCloseInGameMenu)
 	{
 		EnhancedInputComponent->BindAction(OpenAndCloseInGameMenu, ETriggerEvent::Completed, this, &UInputUIComponent::OpenAndCloseInGameMenuClicked);
 	}
 }
+
+void UInputUIComponent::HandleUIOnDeath()
+{
+	if (InGameMenuWidget && InGameMenuActive)
+	{
+		InGameMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+		InGameMenuActive = false;
+	}
+}
+
 
 void UInputUIComponent::OpenAndCloseInGameMenuClicked()
 {

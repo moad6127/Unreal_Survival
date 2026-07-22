@@ -19,19 +19,16 @@ void ASurvival_HUD::InitInGameHUD(APlayerController* OwningController)
     }
 
     // 이미 생성되어 있으면 재생성하지 않음 (재초기화 대비 멱등성 유지)
-    if (IsValid(InGameHUDWidget))
+
+    if (!IsValid(InGameHUDWidget))
     {
+        InGameHUDWidget = CreateWidget<UUserWidget>(OwningController, InGameHUDWidgetClass);
+        if (!InGameHUDWidget)
+        {
+            return;
+        }
         InGameHUDWidget->AddToViewport(0);
-        return;
     }
-
-    InGameHUDWidget = CreateWidget<UUserWidget>(OwningController, InGameHUDWidgetClass);
-    if (!InGameHUDWidget)
-    {
-        return;
-    }
-
-    InGameHUDWidget->AddToViewport(0);
 
     FInputModeGameOnly InputMode;
     OwningController->SetInputMode(InputMode);

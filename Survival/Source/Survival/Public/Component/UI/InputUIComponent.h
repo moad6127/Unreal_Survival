@@ -26,6 +26,12 @@ private:
 	void OpenInGameMenu();
 	void CloseInGameMenu();
 
+	UFUNCTION()
+	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
+
+	UFUNCTION()
+	void HandleUIOnDeath();
+
 	UPROPERTY()
 	TObjectPtr<APlayerController> OwnerPlayerController;
 

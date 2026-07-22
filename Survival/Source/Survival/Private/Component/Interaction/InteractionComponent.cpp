@@ -6,13 +6,31 @@
 #include "EnhancedInputComponent.h"
 #include "Interfaces/InteractInterface.h"
 #include "Interfaces/CanInteractInterface.h"
+#include "Component/AttributeManager/AttributeComponent.h"
 
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	OwnerPlayerController = USurvivalStatics::GetPlayerControllerFromComponent(this);
+
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (IsValid(OwnerPlayerController) && IsValid(OwnerPawn) && OwnerPawn->IsLocallyControlled())
+	if (OwnerPawn)
+	{
+		OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UInteractionComponent::HandleControllerChanged);
+		if (AController* CurrentController = OwnerPawn->GetController())
+		{
+			HandleControllerChanged(OwnerPawn, nullptr, CurrentController);
+		}
+	}
+	if (UAttributeComponent* AttributeComponent = USurvivalStatics::GetComponentFromActor<UAttributeComponent>(GetOwner()))
+	{
+		AttributeComponent->OnDeath.AddDynamic(this, &UInteractionComponent::HandleInteractOnDeath);
+	}
+}
+
+void UInteractionComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
+{
+	OwnerPlayerController = Cast<APlayerController>(NewController);
+	if (IsValid(OwnerPlayerController) && Pawn->IsLocallyControlled())
 	{
 		InitInput();
 	}
@@ -59,6 +77,14 @@ void UInteractionComponent::TargetInteract()
 		IInteractInterface::Execute_Interact(ThisActor.Get(),OwnerPlayerController);
 	}
 }
+
+void UInteractionComponent::HandleInteractOnDeath()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TraceTimer);
+	HandleInteraction(nullptr);
+}
+
+
 
 void UInteractionComponent::Server_TargetInteract_Implementation(AActor* ActorToInteractWith, AController* InstigatingController)
 {

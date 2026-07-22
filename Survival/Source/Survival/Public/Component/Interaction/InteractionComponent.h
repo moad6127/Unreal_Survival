@@ -27,8 +27,14 @@ private:
 	void HandleInteraction(AActor* HitActor);
 	void TargetInteract();
 
+	UFUNCTION()
+	void HandleInteractOnDeath();
+
 	UFUNCTION(Server,Reliable)
 	void Server_TargetInteract(AActor* ActorToInteract, AController* InstigatingController);
+
+	UFUNCTION()
+	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
 
 	UPROPERTY()
 	TObjectPtr<APlayerController> OwnerPlayerController;

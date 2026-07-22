@@ -17,6 +17,7 @@
 #include "Component/Replication/ReplicationComponent.h"
 #include "Component/AttributeManager/AttributeComponent.h"
 #include "Component/Ragdoll/RagdollComponent.h"
+#include "Component/Respawn/RespawnComponent.h"
 
 ASurvivalCharacter::ASurvivalCharacter()
 {
@@ -64,7 +65,7 @@ ASurvivalCharacter::ASurvivalCharacter()
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
 	AttributeComponent->OnDeath.AddDynamic(this, &ASurvivalCharacter::OnDeath);
 	RagdollComponent = CreateDefaultSubobject<URagdollComponent>(TEXT("RagdollComponent"));
-
+	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	

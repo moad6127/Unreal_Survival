@@ -16,7 +16,19 @@ void UBasicMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* PC = USurvivalStatics::GetPlayerControllerFromComponent(this);
+	if (APawn* OwnerPawn = Cast<APawn>(GetOwner()))
+	{
+		OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UBasicMovementComponent::HandleControllerChanged);
+		if (AController* CurrentController = OwnerPawn->GetController())
+		{
+			HandleControllerChanged(OwnerPawn, nullptr, CurrentController);
+		}
+	}
+}
+
+void UBasicMovementComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
+{
+	APlayerController* PC = Cast<APlayerController>(NewController);
 	if (!IsValid(PC))
 	{
 		return;

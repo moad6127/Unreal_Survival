@@ -19,9 +19,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(Client,Reliable)
-	void Client_InitRespawnUI();
+	virtual void Client_InitRespawnUI();
 
-	UFUNCTION(Server,Reliable)
-	void Server_SpawnPlayer();
+	UFUNCTION(Server,Reliable,BlueprintCallable)
+	virtual void Server_SpawnPlayer();
 		
 };

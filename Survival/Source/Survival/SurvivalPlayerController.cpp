@@ -10,6 +10,7 @@
 #include "Widgets/Input/SVirtualJoystick.h"
 #include "Utils/SurvivalStatics.h"
 #include "HUD/Survival_HUD.h"
+#include "Component/AttributeManager/AttributeComponent.h"
 
 UAttributeComponent* ASurvivalPlayerController::GetAttributeManager()
 {
@@ -75,6 +76,10 @@ void ASurvivalPlayerController::OnPossess(APawn* aPawn)
 	{
 		SurvivalHUD->InitInGameHUD(this);
 	}
+	if (UAttributeComponent* AttributeComponent = GetAttributeManager())
+	{
+		OnAttributeComponentReady.Broadcast(AttributeComponent);
+	}
 }
 
 void ASurvivalPlayerController::OnRep_Pawn()
@@ -84,6 +89,10 @@ void ASurvivalPlayerController::OnRep_Pawn()
 	if (ASurvival_HUD* SurvivalHUD = GetHUD<ASurvival_HUD>())
 	{
 		SurvivalHUD->InitInGameHUD(this);
+	}
+	if (UAttributeComponent* AttributeComponent = GetAttributeManager())
+	{
+		OnAttributeComponentReady.Broadcast(AttributeComponent);
 	}
 }
 

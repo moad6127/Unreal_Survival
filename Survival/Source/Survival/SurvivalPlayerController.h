@@ -10,7 +10,7 @@ class UInputMappingContext;
 class UUserWidget;
 class UAttributeComponent;
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeComponentReady, UAttributeComponent*, AttributeComponent);
 /**
  *  Basic PlayerController class for a third person game
  *  Manages input mappings
@@ -24,6 +24,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attribute")
 	UAttributeComponent* GetAttributeManager();
 	
+	UPROPERTY(BlueprintAssignable, Category = "Attribute")
+	FOnAttributeComponentReady OnAttributeComponentReady;
 protected:
 
 	/** Input Mapping Contexts */
