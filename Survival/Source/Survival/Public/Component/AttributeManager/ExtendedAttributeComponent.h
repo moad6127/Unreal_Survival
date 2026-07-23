@@ -4,21 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Types/AttributeType.h"
 #include "ExtendedAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, InValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
-
-
-
-UENUM(BlueprintType)
-enum class EAttributeTypes : uint8
-{
-	Health,
-	Food,
-	Hydration
-};
-
 
 
 UCLASS(Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
