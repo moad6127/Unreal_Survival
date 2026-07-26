@@ -47,10 +47,11 @@ void URespawnComponent::Client_InitRespawnUI_Implementation()
 	}
 
 	RespawnWidgetInstance->AddToViewport();
+
 	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(RespawnWidgetInstance->TakeWidget());
 	PC->SetInputMode(InputMode);
 	PC->SetShowMouseCursor(true);
+
 }
 
 void URespawnComponent::Server_SpawnPlayer_Implementation()

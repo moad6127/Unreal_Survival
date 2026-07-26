@@ -43,5 +43,5 @@ void APickupItem::UpdateFromItemData()
 		return;
 	}
 	ItemMesh->SetStaticMesh(ItemData.Generic.ItemMesh);
-	InteractText = FText::Format(NSLOCTEXT("Pickup", "PickupPrompt", "Pick up {0}"), ItemData.Generic.ItemName);
+	InteractText = FText::Format(NSLOCTEXT("Pickup", "PickupPrompt", "[E] Pick up {0}"), ItemData.Generic.ItemName);
 }
