@@ -19,4 +19,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	static bool GetInventoryItemInfoFromSlot(const FInventoryItemSlot& InSlot, FItem& OutItemInfo);
 
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	static void GetGridRowAndColumn(int32 Index, int32 SlotsPerRow, int32& OutRow, int32& OutColumn);
+
 };

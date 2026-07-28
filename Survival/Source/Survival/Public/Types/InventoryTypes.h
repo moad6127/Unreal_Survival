@@ -44,7 +44,7 @@ struct FInventoryItemSlot
 	FDataTableRowHandle Item;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 Amount = 0;
+	int32 Amount = 1;
 };
 
 USTRUCT(BlueprintType)

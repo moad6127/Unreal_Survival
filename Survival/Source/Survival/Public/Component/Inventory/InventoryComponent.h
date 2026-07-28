@@ -13,5 +13,11 @@ UCLASS()
 class SURVIVAL_API UInventoryComponent : public UExtenedInventoryComponent
 {
 	GENERATED_BODY()
+protected:
+
+	virtual void BeginPlay() override;
+
+	void InitInventory();
+	int32 CreateEmptySlot(TArray<FInventoryItemSlot>& TargetInventory);
 	
 };

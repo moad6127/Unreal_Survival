@@ -18,3 +18,9 @@ bool UInventoryStatics::GetInventoryItemInfoFromSlot(const FInventoryItemSlot& I
 	OutItemInfo = *FoundRow;
 	return true;
 }
+
+void UInventoryStatics::GetGridRowAndColumn(int32 Index, int32 SlotsPerRow, int32& OutRow, int32& OutColumn)
+{
+	OutRow = Index / SlotsPerRow;
+	OutColumn = Index % SlotsPerRow;
+}
