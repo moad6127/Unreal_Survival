@@ -24,3 +24,13 @@ void UInventoryStatics::GetGridRowAndColumn(int32 Index, int32 SlotsPerRow, int3
 	OutRow = Index / SlotsPerRow;
 	OutColumn = Index % SlotsPerRow;
 }
+
+bool UInventoryStatics::CheckIfInventoryItemEqual(const FInventoryItemSlot& ItemSlotOne, const FInventoryItemSlot& ItemSlotTwo)
+{
+	return ItemSlotOne.Item.RowName == ItemSlotTwo.Item.RowName;
+}
+
+bool UInventoryStatics::IsItemEmpty(const FInventoryItemSlot& InSlot, const FDataTableRowHandle& EmptyItem)
+{
+	return InSlot.Item.RowName == EmptyItem.RowName;
+}

@@ -17,17 +17,23 @@ class SURVIVAL_API APickupItem : public ABaseInteractActor
 public:
 
 	APickupItem();
+	void SetInventoryItemSlot(const FInventoryItemSlot& InSlot) { InventoryItemSlot = InSlot; }
+	void SetSimulatePhysics(bool bInSimulate) { bSimulatePhysics = bInSimulate; }
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void Interact_Implementation(AController* InstigatorController) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> ItemMesh;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
 	FInventoryItemSlot InventoryItemSlot;
 
 private:
 	void UpdateFromItemData();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup", meta = (AllowPrivateAccess = "true"))
+	bool bSimulatePhysics = false;
 };

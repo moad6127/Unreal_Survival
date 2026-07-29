@@ -9,17 +9,25 @@ ABaseInteractActor::ABaseInteractActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
+	SetRootComponent(ItemMesh);
+	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	
+
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SetRootComponent(SphereComponent);
+	SphereComponent->SetupAttachment(ItemMesh);
 	SphereComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	SphereComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+
+
 
 	/*
 	* Widget
 	*/
 
 	InteractWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidgetComponent"));
-	InteractWidgetComponent->SetupAttachment(RootComponent);
+	InteractWidgetComponent->SetupAttachment(ItemMesh);
+	InteractWidgetComponent->SetUsingAbsoluteRotation(true);
 	InteractWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	InteractWidgetComponent->SetDrawSize(FVector2D(100.f, 50.f));
 	InteractWidgetComponent->SetVisibility(false);

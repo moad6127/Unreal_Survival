@@ -8,6 +8,8 @@
 #include "ExtenedInventoryComponent.generated.h"
 
 
+class APickupItem;
+
 UCLASS(Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SURVIVAL_API UExtenedInventoryComponent : public UActorComponent
 {
@@ -16,8 +18,26 @@ class SURVIVAL_API UExtenedInventoryComponent : public UActorComponent
 public:	
 	UExtenedInventoryComponent();
 
+	UFUNCTION(Server, Reliable)
+	void Server_TryAddItemToInventoryAutomatically(const FInventoryItemSlot& ItemToAdd);
+
+	UFUNCTION(Server, Reliable)
+	void Server_DropItemBySlotIndex(int32 Index);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SpawnItem(const FInventoryItemSlot& ItemToSpawn);
+
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual bool FindEmptySlot(const TArray<FInventoryItemSlot>& TargetInventory, int32& OutIndex);
+	virtual void AddItemToSlotByIndex(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd, int32 Index);
+	virtual void DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
+	virtual void TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd);
+	virtual void SpawnItem(const FInventoryItemSlot & ItemToSpawn);
+
+
 
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Inventory")
@@ -31,5 +51,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
 	int32 SlotsPerRow = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+	TSubclassOf<APickupItem> PickupItemClass;
 	
 };

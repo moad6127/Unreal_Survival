@@ -2,11 +2,68 @@
 
 
 #include "Component/Inventory/InventoryComponent.h"
+#include "Utils/InventoryStatics.h"
+#include "Actors/InteractionActor/PickupItem.h"
 
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	InitInventory();
+}
+
+bool UInventoryComponent::FindEmptySlot(const TArray<FInventoryItemSlot>& TargetInventory, int32& OutIndex)
+{
+	for (int32 Index = 0; Index < TargetInventory.Num(); Index++)
+	{
+		if (UInventoryStatics::IsItemEmpty(TargetInventory[Index], EmptySlotItem))
+		{
+			OutIndex = Index;
+			return true;
+		}
+	}
+	return false;
+}
+
+void UInventoryComponent::AddItemToSlotByIndex(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd, int32 Index)
+{
+	TargetInventory[Index] = ItemToAdd;
+}
+
+void UInventoryComponent::DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
+{
+
+}
+
+void UInventoryComponent::TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd)
+{
+	int32 EmptyIndex = 0;
+	if (FindEmptySlot(TargetInventory, EmptyIndex))
+	{
+		AddItemToSlotByIndex(TargetInventory, ItemToAdd, EmptyIndex);
+	}
+	else
+	{
+		SpawnItem(ItemToAdd);
+	}
+}
+
+void UInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn)
+{
+	UWorld* World = GetWorld();
+	AActor* Owner = GetOwner();
+	if (!PickupItemClass || !World || !Owner)
+	{
+		return;
+	}
+
+	const FTransform SpawnTransform = Owner->GetActorTransform();
+	APickupItem* SpawnedItem = World->SpawnActorDeferred<APickupItem>(PickupItemClass, SpawnTransform);
+	if (SpawnedItem)
+	{
+		SpawnedItem->SetInventoryItemSlot(ItemToSpawn);
+		SpawnedItem->SetSimulatePhysics(true);
+		SpawnedItem->FinishSpawning(SpawnTransform);
+	}
 }
 
 void UInventoryComponent::InitInventory()
