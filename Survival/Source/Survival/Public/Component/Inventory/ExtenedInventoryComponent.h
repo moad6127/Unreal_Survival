@@ -18,16 +18,20 @@ class SURVIVAL_API UExtenedInventoryComponent : public UActorComponent
 public:	
 	UExtenedInventoryComponent();
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(BlueprintCallable ,Server, Reliable)
 	void Server_TryAddItemToInventoryAutomatically(const FInventoryItemSlot& ItemToAdd);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Server_DropItemBySlotIndex(int32 Index);
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Server_SpawnItem(const FInventoryItemSlot& ItemToSpawn);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	bool IsPlayerInventory() const { return bIsPlayerInventory; }
 protected:
 	virtual void BeginPlay() override;
 
@@ -36,6 +40,10 @@ protected:
 	virtual void DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
 	virtual void TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd);
 	virtual void SpawnItem(const FInventoryItemSlot & ItemToSpawn);
+	virtual void SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
+
+	
+	virtual void MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 
 
 
@@ -54,5 +62,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
 	TSubclassOf<APickupItem> PickupItemClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+	bool bIsPlayerInventory = false;
 	
 };

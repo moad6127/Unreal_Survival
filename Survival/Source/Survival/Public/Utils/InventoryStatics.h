@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	static bool IsItemEmpty(const FInventoryItemSlot& InSlot, const FDataTableRowHandle& EmptyItem);
+
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	static bool WhichInventoryComponentIsFromPlayer(UExtenedInventoryComponent* ComponentOne, UExtenedInventoryComponent* ComponentTwo, UExtenedInventoryComponent*& OutPlayerInventoryComponent);
 };

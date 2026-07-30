@@ -2,6 +2,7 @@
 
 
 #include "Utils/InventoryStatics.h"
+#include "Component/Inventory/ExtenedInventoryComponent.h"
 
 bool UInventoryStatics::GetInventoryItemInfoFromSlot(const FInventoryItemSlot& InSlot, FItem& OutItemInfo)
 {
@@ -33,4 +34,22 @@ bool UInventoryStatics::CheckIfInventoryItemEqual(const FInventoryItemSlot& Item
 bool UInventoryStatics::IsItemEmpty(const FInventoryItemSlot& InSlot, const FDataTableRowHandle& EmptyItem)
 {
 	return InSlot.Item.RowName == EmptyItem.RowName;
+}
+
+bool UInventoryStatics::WhichInventoryComponentIsFromPlayer(UExtenedInventoryComponent* ComponentOne, UExtenedInventoryComponent* ComponentTwo, UExtenedInventoryComponent*& OutPlayerInventoryComponent)
+{
+	if (ComponentOne && ComponentOne->IsPlayerInventory())
+	{
+		OutPlayerInventoryComponent = ComponentOne;
+		return true;
+	}
+
+	if (ComponentTwo && ComponentTwo->IsPlayerInventory())
+	{
+		OutPlayerInventoryComponent = ComponentTwo;
+		return true;
+	}
+
+	OutPlayerInventoryComponent = nullptr;
+	return false;
 }
