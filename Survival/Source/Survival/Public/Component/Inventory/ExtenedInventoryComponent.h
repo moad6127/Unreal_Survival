@@ -9,6 +9,9 @@
 
 
 class APickupItem;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInventorySlotUpdated, int32, SlotIndex, FInventoryItemSlot, UpdatedSlot);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemConsumed, FInventoryItemSlot, ConsumedItem);
+
 
 UCLASS(Abstract, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SURVIVAL_API UExtenedInventoryComponent : public UActorComponent
@@ -30,8 +33,17 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Server_MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_ConsumeItemBySlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 Index);
+
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	bool IsPlayerInventory() const { return bIsPlayerInventory; }
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnInventorySlotUpdated OnInventorySlotUpdated;
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnItemConsumed OnItemConsumed;
 protected:
 	virtual void BeginPlay() override;
 
@@ -41,7 +53,7 @@ protected:
 	virtual void TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd);
 	virtual void SpawnItem(const FInventoryItemSlot & ItemToSpawn);
 	virtual void SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
-
+	virtual void ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
 	
 	virtual void MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 

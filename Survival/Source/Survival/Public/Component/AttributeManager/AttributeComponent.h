@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Component/AttributeManager/ExtendedAttributeComponent.h"
+#include "Types/InventoryTypes.h"
 #include "AttributeComponent.generated.h"
 
 /**
@@ -32,6 +33,9 @@ private:
 	void StartStatConsumeTimer();
 
 	void HandleStatConsumeTick();
+
+	UFUNCTION()
+	void HandleItemConsume(FInventoryItemSlot ConsumedItem);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Attributes", meta = (AllowPrivateAccess = "true"))
 	float StatConsumeRate = 0.1f;

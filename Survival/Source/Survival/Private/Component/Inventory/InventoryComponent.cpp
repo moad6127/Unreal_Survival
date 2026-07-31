@@ -27,6 +27,7 @@ bool UInventoryComponent::FindEmptySlot(const TArray<FInventoryItemSlot>& Target
 void UInventoryComponent::AddItemToSlotByIndex(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd, int32 Index)
 {
 	TargetInventory[Index] = ItemToAdd;
+	OnInventorySlotUpdated.Broadcast(Index, ItemToAdd);
 }
 
 void UInventoryComponent::DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
@@ -64,6 +65,19 @@ void UInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn)
 		SpawnedItem->SetSimulatePhysics(true);
 		SpawnedItem->FinishSpawning(SpawnTransform);
 	}
+}
+
+void UInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
+{
+	if (!TargetInventory.IsValidIndex(Index))
+	{
+		return;
+	}
+	const FInventoryItemSlot ConsumedSlot = TargetInventory[Index];
+	SetInventorySlotToEmptyByIndex(TargetInventory, Index);
+
+	//TODO: 델리게이트를 만들어서 Consume한것을 보내기
+	OnItemConsumed.Broadcast(ConsumedSlot);
 }
 
 void UInventoryComponent::InitInventory()

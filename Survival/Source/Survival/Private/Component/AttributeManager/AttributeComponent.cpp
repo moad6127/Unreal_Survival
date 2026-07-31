@@ -2,7 +2,11 @@
 
 
 #include "Component/AttributeManager/AttributeComponent.h"
+#include "Component/Inventory/ExtenedInventoryComponent.h"
+#include "Utils/InventoryStatics.h"
+#include "Utils/SurvivalStatics.h"
 #include "Kismet/GameplayStatics.h"
+
 
 void UAttributeComponent::BeginPlay()
 {
@@ -13,6 +17,11 @@ void UAttributeComponent::BeginPlay()
     if (GetOwner()->HasAuthority())
     {
         StartStatConsumeTimer();
+
+        if (UExtenedInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromActor<UExtenedInventoryComponent>(GetOwner()))
+        {
+            InventoryComp->OnItemConsumed.AddDynamic(this, &UAttributeComponent::HandleItemConsume);
+        }
     }
 }
 
@@ -57,5 +66,15 @@ void UAttributeComponent::HandleStatConsumeTick()
     ModifyAttribute(EAttributeTypes::Hydration, -HydrationConsumeDamage);
 
     ApplyStatDamage();
+}
+
+void UAttributeComponent::HandleItemConsume(FInventoryItemSlot ConsumedItem)
+{
+    FItem ItemInfo;
+    if (!UInventoryStatics::GetInventoryItemInfoFromSlot(ConsumedItem, ItemInfo))
+    {
+        return;
+    }
+    ModifyAttribute(ItemInfo.AssignedAttribute.AttributeType, ItemInfo.AssignedAttribute.Amount);
 }
 

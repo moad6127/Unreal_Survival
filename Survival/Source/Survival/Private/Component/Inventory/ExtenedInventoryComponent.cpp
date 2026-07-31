@@ -29,6 +29,15 @@ void UExtenedInventoryComponent::Server_MoveItemToSlotIndex_Implementation(UExte
 	MoveItemToSlotIndex(SourceInventoryComponent, SourceIndex, DestinationInventoryComponent, DestinationIndex);
 }
 
+void UExtenedInventoryComponent::Server_ConsumeItemBySlotIndex_Implementation(UExtenedInventoryComponent* SourceInventoryComponent, int32 Index)
+{
+	if (!SourceInventoryComponent)
+	{
+		return;
+	}
+	SourceInventoryComponent->ConsumeItemBySlotIndex(SourceInventoryComponent->InventorySlots, Index);
+}
+
 void UExtenedInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -56,6 +65,10 @@ void UExtenedInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn
 {
 }
 
+void UExtenedInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
+{
+}
+
 void UExtenedInventoryComponent::SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
 {
 	if (!TargetInventory.IsValidIndex(Index))
@@ -67,7 +80,10 @@ void UExtenedInventoryComponent::SetInventorySlotToEmptyByIndex(TArray<FInventor
 	EmptySlot.Item = EmptySlotItem;
 	EmptySlot.Amount = 1;
 	TargetInventory[Index] = EmptySlot;
+	OnInventorySlotUpdated.Broadcast(Index, EmptySlot);
 }
+
+
 
 void UExtenedInventoryComponent::MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex)
 {
