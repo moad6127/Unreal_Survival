@@ -23,12 +23,14 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void Interact_Implementation(AController* InstigatorController) override;
 
+	UFUNCTION()
+	void OnRep_InventoryItemSlot();
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup")
+	UPROPERTY(ReplicatedUsing = OnRep_InventoryItemSlot, EditAnywhere, BlueprintReadOnly, Category = "Pickup")
 	FInventoryItemSlot InventoryItemSlot;
 
 private:

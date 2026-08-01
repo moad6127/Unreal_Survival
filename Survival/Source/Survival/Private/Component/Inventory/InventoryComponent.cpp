@@ -32,7 +32,13 @@ void UInventoryComponent::AddItemToSlotByIndex(TArray<FInventoryItemSlot>& Targe
 
 void UInventoryComponent::DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
 {
-
+	if (!TargetInventory.IsValidIndex(Index))
+	{
+		return;
+	}
+	const FInventoryItemSlot ItemToDrop = TargetInventory[Index];
+	SpawnItem(ItemToDrop);
+	SetInventorySlotToEmptyByIndex(TargetInventory, Index);
 }
 
 void UInventoryComponent::TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd)

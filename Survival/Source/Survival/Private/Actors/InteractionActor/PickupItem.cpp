@@ -5,6 +5,7 @@
 #include "Utils/InventoryStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Component/Inventory/InventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 
 APickupItem::APickupItem()
 {
@@ -24,6 +25,12 @@ void APickupItem::BeginPlay()
 	ItemMesh->SetSimulatePhysics(bSimulatePhysics);
 }
 
+void APickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APickupItem, InventoryItemSlot);
+}
+
 void APickupItem::Interact_Implementation(AController* InstigatorController)
 {
 	if (!InstigatorController)
@@ -41,6 +48,11 @@ void APickupItem::Interact_Implementation(AController* InstigatorController)
 		InventoryComp->Server_TryAddItemToInventoryAutomatically(InventoryItemSlot);
 	}
 	Destroy();
+}
+
+void APickupItem::OnRep_InventoryItemSlot()
+{
+	UpdateFromItemData();
 }
 
 void APickupItem::UpdateFromItemData()
