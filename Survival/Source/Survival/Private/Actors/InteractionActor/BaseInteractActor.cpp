@@ -12,7 +12,7 @@ ABaseInteractActor::ABaseInteractActor()
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(ItemMesh);
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	
+	ItemMesh->SetUseCCD(true);
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->SetupAttachment(ItemMesh);

@@ -29,6 +29,7 @@ void APickupItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(APickupItem, InventoryItemSlot);
+	DOREPLIFETIME(APickupItem, bSimulatePhysics);
 }
 
 void APickupItem::Interact_Implementation(AController* InstigatorController)
@@ -53,6 +54,11 @@ void APickupItem::Interact_Implementation(AController* InstigatorController)
 void APickupItem::OnRep_InventoryItemSlot()
 {
 	UpdateFromItemData();
+}
+
+void APickupItem::OnRep_SimulatePhysics()
+{
+	ItemMesh->SetSimulatePhysics(bSimulatePhysics);
 }
 
 void APickupItem::UpdateFromItemData()

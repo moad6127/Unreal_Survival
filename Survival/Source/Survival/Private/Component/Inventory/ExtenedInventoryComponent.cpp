@@ -2,11 +2,19 @@
 
 #include "Component/Inventory/ExtenedInventoryComponent.h"
 #include "Utils/InventoryStatics.h"
+#include "Net/UnrealNetwork.h"
 
 UExtenedInventoryComponent::UExtenedInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
+}
 
+void UExtenedInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UExtenedInventoryComponent, InventorySlots);
 }
 
 void UExtenedInventoryComponent::Server_TryAddItemToInventoryAutomatically_Implementation(const FInventoryItemSlot& ItemToAdd)
@@ -116,5 +124,22 @@ void UExtenedInventoryComponent::MoveItemToSlotIndex(UExtenedInventoryComponent*
 
 	DestinationInventoryComponent->AddItemToSlotByIndex(DestinationInventoryComponent->InventorySlots, ItemToMove, DestinationIndex);
 	SourceInventoryComponent->SetInventorySlotToEmptyByIndex(SourceInventoryComponent->InventorySlots, SourceIndex);
+}
+
+void UExtenedInventoryComponent::OnRep_InventorySlots()
+{
+	for (int32 Index = 0; Index < InventorySlots.Num(); Index++)
+	{
+		if (!InventorySlotsPrevious.IsValidIndex(Index))
+		{
+			continue;
+		}
+		const bool bShouldUpdate = !UInventoryStatics::CheckIfInventoryItemEqual(InventorySlots[Index], InventorySlotsPrevious[Index]);
+		if (bShouldUpdate)
+		{
+			OnInventorySlotUpdated.Broadcast(Index, InventorySlots[Index]);
+		}
+	}
+	InventorySlotsPrevious = InventorySlots;
 }
 

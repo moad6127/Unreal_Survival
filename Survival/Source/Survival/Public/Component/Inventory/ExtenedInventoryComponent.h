@@ -20,6 +20,8 @@ class SURVIVAL_API UExtenedInventoryComponent : public UActorComponent
 
 public:	
 	UExtenedInventoryComponent();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 
 	UFUNCTION(BlueprintCallable ,Server, Reliable)
 	void Server_TryAddItemToInventoryAutomatically(const FInventoryItemSlot& ItemToAdd);
@@ -57,11 +59,14 @@ protected:
 	
 	virtual void MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 
+	UFUNCTION()
+	void OnRep_InventorySlots();
 
 
-
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Inventory")
+	UPROPERTY(ReplicatedUsing = OnRep_InventorySlots, EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
 	TArray<FInventoryItemSlot> InventorySlots;
+
+	TArray<FInventoryItemSlot> InventorySlotsPrevious;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
 	int32 DefaultInventorySlotAmount = 24;

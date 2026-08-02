@@ -63,7 +63,9 @@ void UInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn)
 		return;
 	}
 
-	const FTransform SpawnTransform = Owner->GetActorTransform();
+	FVector SpawnLocation = Owner->GetActorLocation() + Owner->GetActorForwardVector() * 10.f;
+	SpawnLocation.Z += 50.f;
+	const FTransform SpawnTransform(Owner->GetActorRotation(), SpawnLocation, FVector::OneVector);
 	APickupItem* SpawnedItem = World->SpawnActorDeferred<APickupItem>(PickupItemClass, SpawnTransform);
 	if (SpawnedItem)
 	{

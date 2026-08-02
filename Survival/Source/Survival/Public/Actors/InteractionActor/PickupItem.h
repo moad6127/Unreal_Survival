@@ -34,8 +34,12 @@ protected:
 	FInventoryItemSlot InventoryItemSlot;
 
 private:
+
+	UFUNCTION()
+	void OnRep_SimulatePhysics();
+
 	void UpdateFromItemData();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_SimulatePhysics, EditAnywhere, BlueprintReadOnly, Category = "Pickup", meta = (AllowPrivateAccess = "true"))
 	bool bSimulatePhysics = false;
 };
