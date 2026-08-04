@@ -10,6 +10,8 @@
 /**
  * 
  */
+class UExtenedInventoryComponent;
+
 UCLASS()
 class SURVIVAL_API UInventoryDragDropOperation : public UDragDropOperation
 {

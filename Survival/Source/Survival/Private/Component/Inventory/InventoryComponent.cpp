@@ -8,7 +8,10 @@
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	InitInventory();
+	if (GetOwner()->HasAuthority())
+	{
+		InitInventory();
+	}
 }
 
 bool UInventoryComponent::FindEmptySlot(const TArray<FInventoryItemSlot>& TargetInventory, int32& OutIndex)
@@ -84,13 +87,13 @@ void UInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& Tar
 	const FInventoryItemSlot ConsumedSlot = TargetInventory[Index];
 	SetInventorySlotToEmptyByIndex(TargetInventory, Index);
 
-	//TODO: 델리게이트를 만들어서 Consume한것을 보내기
 	OnItemConsumed.Broadcast(ConsumedSlot);
 }
 
 void UInventoryComponent::InitInventory()
 {
-	for (int32 Index = 0; Index < DefaultInventorySlotAmount; Index++)
+	int32 InitInventoryNum = InventorySlots.Num();
+	for (int32 Index = 0; Index < DefaultInventorySlotAmount - InitInventoryNum; Index++)
 	{
 		CreateEmptySlot(InventorySlots);
 	}

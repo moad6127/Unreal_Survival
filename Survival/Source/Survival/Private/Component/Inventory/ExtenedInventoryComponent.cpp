@@ -130,11 +130,8 @@ void UExtenedInventoryComponent::OnRep_InventorySlots()
 {
 	for (int32 Index = 0; Index < InventorySlots.Num(); Index++)
 	{
-		if (!InventorySlotsPrevious.IsValidIndex(Index))
-		{
-			continue;
-		}
-		const bool bShouldUpdate = !UInventoryStatics::CheckIfInventoryItemEqual(InventorySlots[Index], InventorySlotsPrevious[Index]);
+		const bool bHadPreviousValue = InventorySlotsPrevious.IsValidIndex(Index);
+		const bool bShouldUpdate = !bHadPreviousValue || !UInventoryStatics::CheckIfInventoryItemEqual(InventorySlots[Index], InventorySlotsPrevious[Index]);
 		if (bShouldUpdate)
 		{
 			OnInventorySlotUpdated.Broadcast(Index, InventorySlots[Index]);
