@@ -65,7 +65,7 @@ struct FItemAssignedAttribute
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EAttributeTypes AttributeType = EAttributeTypes::None; // ← 아래 확인 필요
+	EAttributeTypes AttributeType = EAttributeTypes::None; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Amount = 0.f;
