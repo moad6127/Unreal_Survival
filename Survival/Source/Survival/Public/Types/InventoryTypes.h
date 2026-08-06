@@ -55,7 +55,7 @@ struct FItemAttributeCrafting
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bIsCraftable = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bIsCraftable"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bIsCraftable"))
 	TArray<FInventoryItemSlot> Recipe;
 };
 
