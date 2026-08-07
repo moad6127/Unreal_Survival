@@ -13,5 +13,16 @@ UCLASS()
 class SURVIVAL_API UCraftingComponent : public UExtenedCraftingComponent
 {
 	GENERATED_BODY()
-	
+public:
+	UFUNCTION(BlueprintCallable, Category = "Crafting")
+	void SetDefaultRecipesFromDataTable();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+	TObjectPtr<UDataTable> ItemDataTable = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Crafting")
+	bool bAutoPopulateRecipesFromDataTable = false;
+
+protected:
+	virtual void BeginPlay() override;
 };

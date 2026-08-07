@@ -28,4 +28,7 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Crafting")
 	bool bIsCrafting = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crafting")
+	TArray<FInventoryItemSlot> Recipes;
 };
