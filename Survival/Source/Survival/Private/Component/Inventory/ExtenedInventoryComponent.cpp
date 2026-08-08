@@ -46,6 +46,16 @@ void UExtenedInventoryComponent::Server_ConsumeItemBySlotIndex_Implementation(UE
 	SourceInventoryComponent->ConsumeItemBySlotIndex(SourceInventoryComponent->InventorySlots, Index);
 }
 
+void UExtenedInventoryComponent::Server_RemoveItemFromInventoryAutomatically_Implementation(const FInventoryItemSlot& ItemToRemove)
+{
+	RemoveItemFromInventoryAutomatically(ItemToRemove);
+}
+
+bool UExtenedInventoryComponent::CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const
+{
+	return false;
+}
+
 void UExtenedInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -74,6 +84,10 @@ void UExtenedInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn
 }
 
 void UExtenedInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
+{
+}
+
+void UExtenedInventoryComponent::RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove)
 {
 }
 

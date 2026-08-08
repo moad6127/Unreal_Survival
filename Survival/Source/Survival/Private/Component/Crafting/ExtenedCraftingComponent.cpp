@@ -15,16 +15,28 @@ void UExtenedCraftingComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UExtenedCraftingComponent, bIsCrafting);
+	DOREPLIFETIME(UExtenedCraftingComponent, CurrentlyCraftingItem);
+	DOREPLIFETIME(UExtenedCraftingComponent, StartingCraftingTime);
+	DOREPLIFETIME(UExtenedCraftingComponent, CurrentCraftingTime);
 }
 
 void UExtenedCraftingComponent::Server_TryCraftItem_Implementation(const FInventoryItemSlot& ItemToCraft)
 {
+	TryCraftItem(ItemToCraft);
 }
 
-void UExtenedCraftingComponent::Server_StartCrafting_Implementation()
+void UExtenedCraftingComponent::Server_StartCrafting_Implementation(const FInventoryItemSlot& ItemToStartCrafting)
+{
+	StartCrafting(ItemToStartCrafting);
+}
+
+void UExtenedCraftingComponent::TryCraftItem(const FInventoryItemSlot& ItemToCraft)
 {
 }
 
+void UExtenedCraftingComponent::StartCrafting(const FInventoryItemSlot& ItemToStartCrafting)
+{
+}
 
 void UExtenedCraftingComponent::BeginPlay()
 {

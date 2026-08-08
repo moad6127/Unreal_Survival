@@ -23,6 +23,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crafting")
 	bool bAutoPopulateRecipesFromDataTable = false;
 
+	UPROPERTY(EditAnywhere, Category = "Crafting")
+	float DefaultCraftingTime = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "Crafting")
+	float CraftingTickInterval = 0.05f;
+
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void TryCraftItem(const FInventoryItemSlot& ItemToCraft) override;
+	virtual void StartCrafting(const FInventoryItemSlot& ItemToStartCrafting) override;
+	void TickCraftingTimer();
+
+	FTimerHandle CraftingTimerHandle;
 };

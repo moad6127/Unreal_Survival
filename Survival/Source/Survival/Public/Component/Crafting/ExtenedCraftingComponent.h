@@ -21,14 +21,26 @@ public:
 	void Server_TryCraftItem(const FInventoryItemSlot& ItemToCraft);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Crafting")
-	void Server_StartCrafting();
+	void Server_StartCrafting(const FInventoryItemSlot& ItemToStartCrafting);
 protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void TryCraftItem(const FInventoryItemSlot& ItemToCraft);
+	virtual void StartCrafting(const FInventoryItemSlot& ItemToStartCrafting);
 
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Crafting")
 	bool bIsCrafting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crafting")
 	TArray<FInventoryItemSlot> Recipes;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Crafting")
+	FInventoryItemSlot CurrentlyCraftingItem;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Crafting")
+	float StartingCraftingTime = 0.f;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Crafting")
+	float CurrentCraftingTime = 0.f;
 };
