@@ -45,7 +45,13 @@ public:
 	bool IsPlayerInventory() const { return bIsPlayerInventory; }
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
-	bool CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const;
+	virtual bool CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const;
+
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	virtual int32 HowManyOfItemsCanBeFoundInInventory(const FInventoryItemSlot& ItemToFind, const TArray<FInventoryItemSlot>& TargetArray) const;
+
+	UFUNCTION(BlueprintPure, Category = "Inventory")
+	virtual TArray<int32> FindExistingSlotIndexesOfSpecifiedInventoryItem(const TArray<FInventoryItemSlot>& TargetArray, const FInventoryItemSlot& ItemToFind, bool& bOutSuccess) const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventorySlotUpdated OnInventorySlotUpdated;
@@ -64,6 +70,7 @@ protected:
 	virtual void ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
 	virtual void RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove);
 	virtual void MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
+
 
 	UFUNCTION()
 	void OnRep_InventorySlots();

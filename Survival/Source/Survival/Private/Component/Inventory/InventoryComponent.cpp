@@ -90,6 +90,68 @@ void UInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& Tar
 	OnItemConsumed.Broadcast(ConsumedSlot);
 }
 
+bool UInventoryComponent::CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const
+{
+	for (const FInventoryItemSlot& RequiredItem : ItemsToFind)
+	{
+		const int32 AmountFound = HowManyOfItemsCanBeFoundInInventory(RequiredItem, InventorySlots);
+
+		if (AmountFound < RequiredItem.Amount)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+int32 UInventoryComponent::HowManyOfItemsCanBeFoundInInventory(const FInventoryItemSlot& ItemToFind, const TArray<FInventoryItemSlot>& TargetArray) const
+{
+	bool bSuccess = false;
+	const TArray<int32> FoundIndexes = FindExistingSlotIndexesOfSpecifiedInventoryItem(TargetArray, ItemToFind, bSuccess);
+
+	// Non-stackable slots -> amount available is just how many slots matched.
+	// TODO : 나중에 Stackable로 바뀌면 변경해야함
+
+	return bSuccess ? FoundIndexes.Num() : 0;
+
+	/*Stackable로 할경우 함수 기능*/
+	/*
+	bool bSuccess = false;
+	const TArray<int32> FoundIndexes = FindExistingSlotIndexesOfSpecifiedInventoryItem(TargetArray, ItemToFind, bSuccess);
+
+	if (!bSuccess)
+	{
+		return 0;
+	}
+
+	int32 TotalAmount = 0;
+	for (const int32 SlotIndex : FoundIndexes)
+	{
+		TotalAmount += TargetArray[SlotIndex].Amount;
+	}
+
+	return TotalAmount;
+	*/
+
+}
+
+TArray<int32> UInventoryComponent::FindExistingSlotIndexesOfSpecifiedInventoryItem(const TArray<FInventoryItemSlot>& TargetArray, const FInventoryItemSlot& ItemToFind, bool& bOutSuccess) const
+{
+	TArray<int32> FoundIndexes;
+
+	for (int32 Index = 0; Index < TargetArray.Num(); ++Index)
+	{
+		if (UInventoryStatics::CheckIfInventoryItemEqual(TargetArray[Index], ItemToFind))
+		{
+			FoundIndexes.Add(Index);
+		}
+	}
+
+	bOutSuccess = FoundIndexes.Num() > 0;
+	return FoundIndexes;
+}
+
 void UInventoryComponent::InitInventory()
 {
 	int32 InitInventoryNum = InventorySlots.Num();

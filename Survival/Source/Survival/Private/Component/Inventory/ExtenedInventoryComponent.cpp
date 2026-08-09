@@ -51,11 +51,6 @@ void UExtenedInventoryComponent::Server_RemoveItemFromInventoryAutomatically_Imp
 	RemoveItemFromInventoryAutomatically(ItemToRemove);
 }
 
-bool UExtenedInventoryComponent::CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const
-{
-	return false;
-}
-
 void UExtenedInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -90,6 +85,20 @@ void UExtenedInventoryComponent::ConsumeItemBySlotIndex(TArray<FInventoryItemSlo
 void UExtenedInventoryComponent::RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove)
 {
 }
+
+bool UExtenedInventoryComponent::CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const
+{
+	return false;
+}
+int32 UExtenedInventoryComponent::HowManyOfItemsCanBeFoundInInventory(const FInventoryItemSlot& ItemToFind, const TArray<FInventoryItemSlot>& TargetArray) const
+{
+	return int32();
+}
+TArray<int32> UExtenedInventoryComponent::FindExistingSlotIndexesOfSpecifiedInventoryItem(const TArray<FInventoryItemSlot>& TargetArray, const FInventoryItemSlot& ItemToFind, bool& bOutSuccess) const
+{
+	return TArray<int32>();
+}
+
 
 void UExtenedInventoryComponent::SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
 {
