@@ -152,6 +152,31 @@ TArray<int32> UInventoryComponent::FindExistingSlotIndexesOfSpecifiedInventoryIt
 	return FoundIndexes;
 }
 
+void UInventoryComponent::RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove, int32 AmountToRemove)
+{
+	if (AmountToRemove <= 0)
+	{
+		return;
+	}
+
+	bool bSuccess = false;
+	const TArray<int32> FoundIndexes = FindExistingSlotIndexesOfSpecifiedInventoryItem(InventorySlots, ItemToRemove, bSuccess);
+
+	if (!bSuccess)
+	{
+		return;
+	}
+
+	const int32 NumToRemove = FMath::Min(AmountToRemove, FoundIndexes.Num());
+	const int32 LastIndex = FoundIndexes.Num() - 1;
+
+	for (int32 i = 0; i < NumToRemove; ++i)
+	{
+		const int32 SlotIndex = FoundIndexes[LastIndex - i];
+		SetInventorySlotToEmptyByIndex(InventorySlots, SlotIndex);
+	}
+}
+
 void UInventoryComponent::InitInventory()
 {
 	int32 InitInventoryNum = InventorySlots.Num();

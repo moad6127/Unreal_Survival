@@ -39,7 +39,7 @@ public:
 	void Server_ConsumeItemBySlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 Index);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Inventory")
-	void Server_RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove);
+	void Server_RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove, int32 AmountToRemove = 1);
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	bool IsPlayerInventory() const { return bIsPlayerInventory; }
@@ -68,7 +68,7 @@ protected:
 	virtual void SpawnItem(const FInventoryItemSlot & ItemToSpawn);
 	virtual void SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
 	virtual void ConsumeItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index);
-	virtual void RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove);
+	virtual void RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove, int32 AmountToRemove = 1);
 	virtual void MoveItemToSlotIndex(UExtenedInventoryComponent* SourceInventoryComponent, int32 SourceIndex, UExtenedInventoryComponent* DestinationInventoryComponent, int32 DestinationIndex);
 
 

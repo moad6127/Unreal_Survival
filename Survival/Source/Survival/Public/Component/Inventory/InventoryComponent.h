@@ -26,6 +26,8 @@ protected:
 	virtual bool CanArrayOfItemsBeFoundInInventory(const TArray<FInventoryItemSlot>& ItemsToFind) const override;
 	virtual int32 HowManyOfItemsCanBeFoundInInventory(const FInventoryItemSlot& ItemToFind, const TArray<FInventoryItemSlot>& TargetArray) const override;
 	virtual TArray<int32> FindExistingSlotIndexesOfSpecifiedInventoryItem(const TArray<FInventoryItemSlot>& TargetArray, const FInventoryItemSlot& ItemToFind, bool& bOutSuccess) const override;
+	virtual void RemoveItemFromInventoryAutomatically(const FInventoryItemSlot& ItemToRemove, int32 AmountToRemove) override;
+
 
 
 

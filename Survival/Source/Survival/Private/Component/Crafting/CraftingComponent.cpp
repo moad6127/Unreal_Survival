@@ -49,7 +49,7 @@ void UCraftingComponent::TryCraftItem(const FInventoryItemSlot& ItemToCraft)
 
 	for (const FInventoryItemSlot& RecipeIngredient : ItemRow->Crafting.Recipe)
 	{
-		InventoryComponent->Server_RemoveItemFromInventoryAutomatically(RecipeIngredient);
+		InventoryComponent->Server_RemoveItemFromInventoryAutomatically(RecipeIngredient, RecipeIngredient.Amount);
 	}
 
 	StartCrafting(ItemToCraft);
