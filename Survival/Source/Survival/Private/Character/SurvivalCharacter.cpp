@@ -20,6 +20,7 @@
 #include "Component/Respawn/RespawnComponent.h"
 #include "Component/Inventory/InventoryComponent.h"
 #include "Component/Crafting/CraftingComponent.h"
+#include "Component/Equipment/EquipmentComponent.h"
 
 ASurvivalCharacter::ASurvivalCharacter()
 {
@@ -70,7 +71,7 @@ ASurvivalCharacter::ASurvivalCharacter()
 	RespawnComponent = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	CraftingComponent = CreateDefaultSubobject<UCraftingComponent>(TEXT("CraftingComponent"));
-
+	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)

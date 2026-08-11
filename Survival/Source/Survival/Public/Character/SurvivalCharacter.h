@@ -19,6 +19,8 @@ class URagdollComponent;
 class URespawnComponent;
 class UInventoryComponent;
 class UCraftingComponent;
+class UEquipmentComponent;
+
 
 
 
@@ -71,6 +73,9 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCraftingComponent> CraftingComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UEquipmentComponent> EquipmentComponent;
 
 protected:
 
