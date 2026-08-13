@@ -20,9 +20,9 @@ void UExtenedEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(UExtenedEquipmentComponent, EquipmentItem);
 }
 
-void UExtenedEquipmentComponent::Server_Equip_Implementation(const FInventoryItemSlot& ItemToEquip)
+void UExtenedEquipmentComponent::Server_Equip_Implementation(const FInventoryItemSlot& ItemToEquip, int32 Index)
 {
-	Equip(ItemToEquip);
+	Equip(ItemToEquip,Index);
 }
 
 void UExtenedEquipmentComponent::Server_Unequip_Implementation()
@@ -44,7 +44,7 @@ void UExtenedEquipmentComponent::BeginPlay()
 	
 }
 
-void UExtenedEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip)
+void UExtenedEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip, int32 Index)
 {
 }
 
@@ -54,6 +54,17 @@ void UExtenedEquipmentComponent::Unequip()
 
 void UExtenedEquipmentComponent::TryExecutePrimaryEquipmentAction()
 {
+}
+
+void UExtenedEquipmentComponent::SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip)
+{
+}
+
+void UExtenedEquipmentComponent::OnRep_EquipmentItem()
+{
+	// 서버는 자기 자신의 OnRep을 받지 못하므로, 서버 측 브로드캐스트는
+	// Equip/Unequip 에서 처리하기
+	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
 }
 
 

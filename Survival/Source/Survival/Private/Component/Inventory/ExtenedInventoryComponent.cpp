@@ -99,6 +99,16 @@ TArray<int32> UExtenedInventoryComponent::FindExistingSlotIndexesOfSpecifiedInve
 	return TArray<int32>();
 }
 
+void UExtenedInventoryComponent::RemoveItemAtSlotIndex(int32 Index)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	SetInventorySlotToEmptyByIndex(InventorySlots, Index);
+}
+
 
 void UExtenedInventoryComponent::SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
 {

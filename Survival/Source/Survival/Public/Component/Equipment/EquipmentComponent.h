@@ -14,4 +14,10 @@ class SURVIVAL_API UEquipmentComponent : public UExtenedEquipmentComponent
 {
 	GENERATED_BODY()
 	
+protected:
+
+	virtual void Equip(const FInventoryItemSlot& ItemToEquip, int32 Index) override;
+	virtual void Unequip() override;
+	virtual void TryExecutePrimaryEquipmentAction() override;
+	virtual void SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip) override;
 };

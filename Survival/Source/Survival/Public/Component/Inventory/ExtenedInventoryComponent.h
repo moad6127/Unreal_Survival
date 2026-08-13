@@ -53,6 +53,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	virtual TArray<int32> FindExistingSlotIndexesOfSpecifiedInventoryItem(const TArray<FInventoryItemSlot>& TargetArray, const FInventoryItemSlot& ItemToFind, bool& bOutSuccess) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void RemoveItemAtSlotIndex(int32 Index);
+
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventorySlotUpdated OnInventorySlotUpdated;
 

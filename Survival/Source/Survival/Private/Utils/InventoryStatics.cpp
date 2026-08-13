@@ -3,6 +3,8 @@
 
 #include "Utils/InventoryStatics.h"
 #include "Component/Inventory/ExtenedInventoryComponent.h"
+#include "Engine/DataTable.h"
+
 
 bool UInventoryStatics::GetInventoryItemInfoFromSlot(const FInventoryItemSlot& InSlot, FItem& OutItemInfo)
 {

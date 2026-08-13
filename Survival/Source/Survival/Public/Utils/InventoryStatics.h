@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Types/InventoryTypes.h"
+#include "Types/EquipmentTypes.h"
 #include "InventoryStatics.generated.h"
 
 /**
@@ -30,4 +31,5 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Inventory")
 	static bool WhichInventoryComponentIsFromPlayer(UExtenedInventoryComponent* ComponentOne, UExtenedInventoryComponent* ComponentTwo, UExtenedInventoryComponent*& OutPlayerInventoryComponent);
+
 };

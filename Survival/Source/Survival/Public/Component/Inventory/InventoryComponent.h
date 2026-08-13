@@ -13,6 +13,8 @@ UCLASS()
 class SURVIVAL_API UInventoryComponent : public UExtenedInventoryComponent
 {
 	GENERATED_BODY()
+public:
+
 protected:
 
 	virtual void BeginPlay() override;
