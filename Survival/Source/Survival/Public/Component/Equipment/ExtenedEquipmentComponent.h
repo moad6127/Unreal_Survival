@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Types/InventoryTypes.h"
+#include "Types/EquipmentTypes.h"
 #include "ExtenedEquipmentComponent.generated.h"
 
 class AEquipActor;
@@ -41,6 +42,11 @@ protected:
 	virtual void TryExecutePrimaryEquipmentAction();
 	virtual void SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip);
 
+
+	virtual void SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn);
+	virtual void DetachEquipment();
+	virtual USkeletalMeshComponent* GetOwnerMesh() const;
+
 	UFUNCTION()
 	void OnRep_EquipmentItem();
 
@@ -53,4 +59,11 @@ protected:
 	*/
 	UPROPERTY(ReplicatedUsing = OnRep_EquipmentItem, EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	FInventoryItemSlot EquipmentItem;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+	TSubclassOf<AEquipActor> EquipActorClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+	FDataTableRowHandle EmptyItem;
 };

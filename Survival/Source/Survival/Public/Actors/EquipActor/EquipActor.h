@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Types/EquipmentTypes.h"
 #include "EquipActor.generated.h"
 
 UCLASS()
@@ -14,9 +15,18 @@ class SURVIVAL_API AEquipActor : public AActor
 public:	
 	AEquipActor();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	FEquipmentItem EquipmentInfo;
+
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	TObjectPtr<USceneComponent> EquipmentRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UStaticMeshComponent> EquipmentMesh;
+
+
+	virtual void Initialize();
 };

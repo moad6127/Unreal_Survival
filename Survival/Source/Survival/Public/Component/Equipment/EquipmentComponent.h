@@ -20,4 +20,8 @@ protected:
 	virtual void Unequip() override;
 	virtual void TryExecutePrimaryEquipmentAction() override;
 	virtual void SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip) override;
+	virtual void SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn) override;
+	virtual void DetachEquipment() override;
+private:
+
 };

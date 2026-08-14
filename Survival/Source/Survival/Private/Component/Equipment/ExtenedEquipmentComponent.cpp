@@ -4,6 +4,8 @@
 #include "Component/Equipment/ExtenedEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Actors/EquipActor/EquipActor.h"
+#include "GameFramework/Character.h"
+#include "Components/SkeletalMeshComponent.h"
 
 UExtenedEquipmentComponent::UExtenedEquipmentComponent()
 {
@@ -41,6 +43,13 @@ void UExtenedEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		FInventoryItemSlot InitialSlot;
+		InitialSlot.Item = EmptyItem;
+		InitialSlot.Amount = 1;
+		EquipmentItem = InitialSlot;
+	}
 	
 }
 
@@ -58,6 +67,29 @@ void UExtenedEquipmentComponent::TryExecutePrimaryEquipmentAction()
 
 void UExtenedEquipmentComponent::SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip)
 {
+}
+
+void UExtenedEquipmentComponent::SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn)
+{
+}
+
+void UExtenedEquipmentComponent::DetachEquipment()
+{
+}
+
+USkeletalMeshComponent* UExtenedEquipmentComponent::GetOwnerMesh() const
+{
+	if (ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()))
+	{
+		return OwnerCharacter->GetMesh();
+	}
+
+	if (AActor* Owner = GetOwner())
+	{
+		return Owner->FindComponentByClass<USkeletalMeshComponent>();
+	}
+
+	return nullptr;
 }
 
 void UExtenedEquipmentComponent::OnRep_EquipmentItem()

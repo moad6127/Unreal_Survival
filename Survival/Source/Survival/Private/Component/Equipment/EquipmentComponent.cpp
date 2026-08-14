@@ -5,11 +5,21 @@
 #include "Component/Inventory/ExtenedInventoryComponent.h"
 #include "Utils/EquipmentStatics.h"
 #include "Utils/SurvivalStatics.h"
+#include "Utils/InventoryStatics.h"
 #include "Types/EquipmentTypes.h"
+#include "Actors/EquipActor/EquipActor.h"
+#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 
 void UEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip,int32 Index)
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	// 이미 뭔가 장착되어 있으면 아무 것도 하지 않는다 (스왑은 나중에 확장 가능)
+	if (!UInventoryStatics::IsItemEmpty(EquipmentItem, EmptyItem))
 	{
 		return;
 	}
@@ -26,13 +36,42 @@ void UEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip,int32 Inde
 		return;
 	}
 	InventoryComp->RemoveItemAtSlotIndex(Index);
+	
 	SetEquipmentSlot(ItemToEquip);
+	SpawnAndAttach(EquipmentInfo);
 	// 서버는 자기 자신의 OnRep_EquipmentItem을 받지 못하므로 직접 브로드캐스트
 	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
 }
 
 void UEquipmentComponent::Unequip()
 {
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	// 장착된 게 없으면 아무 것도 하지 않는다
+	
+	if (UInventoryStatics::IsItemEmpty(EquipmentItem, EmptyItem))
+	{
+		return;
+	}
+	UExtenedInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromComponent<UExtenedInventoryComponent>(this);
+	if (!InventoryComp)
+	{
+		return;
+	}
+
+	InventoryComp->Server_TryAddItemToInventoryAutomatically(EquipmentItem);
+
+	FInventoryItemSlot EmptySlot;
+	EmptySlot.Item = EmptyItem;
+	EmptySlot.Amount = 1;
+	SetEquipmentSlot(EmptySlot);
+
+	DetachEquipment();
+
+	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
 }
 
 void UEquipmentComponent::TryExecutePrimaryEquipmentAction()
@@ -42,4 +81,43 @@ void UEquipmentComponent::TryExecutePrimaryEquipmentAction()
 void UEquipmentComponent::SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip)
 {
 	EquipmentItem = ItemToEquip;
+}
+
+void UEquipmentComponent::SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn)
+{
+	if (!EquipActorClass || !GetOwner())
+	{
+		return;
+	}
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	const FTransform SpawnTransform = FTransform::Identity;
+	AEquipActor* NewEquipActor = World->SpawnActorDeferred<AEquipActor>(EquipActorClass, SpawnTransform, GetOwner(), Cast<APawn>(GetOwner()));
+	if (!NewEquipActor)
+	{
+		return;
+	}
+	NewEquipActor->EquipmentInfo = EquipmentInfoToSpawn;
+	NewEquipActor->FinishSpawning(SpawnTransform);
+
+	if (USkeletalMeshComponent* OwnerMesh = GetOwnerMesh())
+	{
+		NewEquipActor->AttachToComponent(OwnerMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, EquipmentInfoToSpawn.Equip.SocketName);
+		NewEquipActor->SetActorRelativeTransform(EquipmentInfoToSpawn.Equip.SocketOffset.ToTransform());
+	}
+
+	EquippedWeaponActor = NewEquipActor;
+}
+
+void UEquipmentComponent::DetachEquipment()
+{
+	if (EquippedWeaponActor)
+	{
+		EquippedWeaponActor->Destroy();
+		EquippedWeaponActor = nullptr;
+	}
 }
