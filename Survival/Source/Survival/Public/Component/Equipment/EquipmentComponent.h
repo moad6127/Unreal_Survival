@@ -15,13 +15,23 @@ class SURVIVAL_API UEquipmentComponent : public UExtenedEquipmentComponent
 	GENERATED_BODY()
 	
 protected:
-
+	virtual void BeginPlay() override;
 	virtual void Equip(const FInventoryItemSlot& ItemToEquip, int32 Index) override;
 	virtual void Unequip() override;
 	virtual void TryExecutePrimaryEquipmentAction() override;
 	virtual void SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip) override;
 	virtual void SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn) override;
 	virtual void DetachEquipment() override;
-private:
 
+
+private:
+	UFUNCTION()
+	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> EquipmentContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* EquipmentInputAction;
 };

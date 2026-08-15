@@ -18,6 +18,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
 	FEquipmentItem EquipmentInfo;
 
+	void TryPrimaryAction();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -27,6 +29,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UStaticMeshComponent> EquipmentMesh;
 
+	void Initialize();
 
-	virtual void Initialize();
+	void TryMeleeAction();
 };

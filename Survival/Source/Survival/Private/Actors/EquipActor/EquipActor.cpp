@@ -24,6 +24,23 @@ AEquipActor::AEquipActor()
 	EquipmentMesh->CanCharacterStepUpOn = ECB_No;
 }
 
+void AEquipActor::TryPrimaryAction()
+{
+	switch (EquipmentInfo.Generic.EquipmentType)
+	{
+	case EEquipmentType::Hatchet:
+		UE_LOG(LogTemp, Log, TEXT("Action on Hatchet"));
+		TryMeleeAction();
+		break;
+	case EEquipmentType::Sword:
+		UE_LOG(LogTemp, Log, TEXT("Action on Sword"));
+		TryMeleeAction();
+		break;
+	default:
+		break;
+	}
+}
+
 void AEquipActor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -37,6 +54,10 @@ void AEquipActor::Initialize()
 	{
 		EquipmentMesh->SetStaticMesh(EquipmentInfo.Equip.Mesh);
 	}
+}
+
+void AEquipActor::TryMeleeAction()
+{
 }
 
 

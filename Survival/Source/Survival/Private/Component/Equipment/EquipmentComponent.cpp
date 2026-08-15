@@ -10,6 +10,42 @@
 #include "Actors/EquipActor/EquipActor.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
+#include "EnhancedInputComponent.h"
+
+void UEquipmentComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn)
+	{
+		OwnerPawn->ReceiveControllerChangedDelegate.AddDynamic(this, &UEquipmentComponent::HandleControllerChanged);
+		if (AController* CurrentController = OwnerPawn->GetController())
+		{
+			HandleControllerChanged(OwnerPawn, nullptr, CurrentController);
+		}
+	}
+}
+void UEquipmentComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
+{
+	APlayerController* OwnerPlayerController = Cast<APlayerController>(NewController);
+	if (!IsValid(OwnerPlayerController))
+	{
+		return;
+	}
+	USurvivalStatics::LinkInputMappingContext(OwnerPlayerController, EquipmentContext, 0);
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(OwnerPlayerController->InputComponent);
+	if (!IsValid(EnhancedInputComponent))
+	{
+		return;
+	}
+
+	if (EquipmentInputAction)
+	{
+		EnhancedInputComponent->BindAction(EquipmentInputAction, ETriggerEvent::Completed, this, &UEquipmentComponent::Server_TryExecutePrimaryEquipmentAction);
+	}
+}
+
 
 void UEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip,int32 Index)
 {
@@ -76,6 +112,14 @@ void UEquipmentComponent::Unequip()
 
 void UEquipmentComponent::TryExecutePrimaryEquipmentAction()
 {
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	if (EquippedWeaponActor)
+	{
+		EquippedWeaponActor->TryPrimaryAction();
+	}
 }
 
 void UEquipmentComponent::SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip)
