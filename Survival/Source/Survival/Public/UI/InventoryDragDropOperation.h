@@ -11,6 +11,7 @@
  * 
  */
 class UExtenedInventoryComponent;
+class UExtenedEquipmentComponent;
 
 UCLASS()
 class SURVIVAL_API UInventoryDragDropOperation : public UDragDropOperation
@@ -22,9 +23,17 @@ public:
 	TObjectPtr<UExtenedInventoryComponent> SourceInventoryComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	TObjectPtr<UExtenedEquipmentComponent> SourceEquipmentComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	int32 SourceSlotIndex = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	bool bEquipped = false;
 
 	// 드래그 중 위젯 아이콘 표시용 (UI 전용)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	FInventoryItemSlot SourceItemSlot;
+
+
 };

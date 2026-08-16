@@ -14,8 +14,9 @@ class SURVIVAL_API AEquipActor : public AActor
 	
 public:	
 	AEquipActor();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Equipment")
 	FEquipmentItem EquipmentInfo;
 
 	void TryPrimaryAction();

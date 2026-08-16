@@ -18,8 +18,12 @@ void UExtenedEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UExtenedEquipmentComponent, EquippedWeaponActor);
 	DOREPLIFETIME(UExtenedEquipmentComponent, EquipmentItem);
+}
+
+void UExtenedEquipmentComponent::Server_UnequipToSlot_Implementation(int32 DestinationIndex)
+{
+	UnequipToSlot(DestinationIndex);
 }
 
 void UExtenedEquipmentComponent::Server_Equip_Implementation(const FInventoryItemSlot& ItemToEquip, int32 Index)
@@ -58,6 +62,10 @@ void UExtenedEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip, in
 }
 
 void UExtenedEquipmentComponent::Unequip()
+{
+}
+
+void UExtenedEquipmentComponent::UnequipToSlot(int32 DestinationIndex)
 {
 }
 

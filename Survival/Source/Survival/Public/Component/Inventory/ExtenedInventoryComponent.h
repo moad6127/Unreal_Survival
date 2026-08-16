@@ -56,6 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void RemoveItemAtSlotIndex(int32 Index);
 
+	UFUNCTION(BlueprintCallable,Category = "Inventory")
+	bool AddItemAtSlotIndex(const FInventoryItemSlot& ItemToAdd, int32 Index);
+
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventorySlotUpdated OnInventorySlotUpdated;
 

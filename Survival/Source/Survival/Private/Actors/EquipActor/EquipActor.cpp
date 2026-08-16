@@ -3,6 +3,8 @@
 
 #include "Actors/EquipActor/EquipActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
+
 AEquipActor::AEquipActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -22,6 +24,14 @@ AEquipActor::AEquipActor()
 	EquipmentMesh->SetGenerateOverlapEvents(false);
 	EquipmentMesh->SetCanEverAffectNavigation(false);
 	EquipmentMesh->CanCharacterStepUpOn = ECB_No;
+
+}
+
+void AEquipActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AEquipActor, EquipmentInfo);
 }
 
 void AEquipActor::TryPrimaryAction()

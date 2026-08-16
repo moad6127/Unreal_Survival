@@ -5,6 +5,7 @@
 #include "Utils/InventoryStatics.h"
 #include "Actors/InteractionActor/PickupItem.h"
 
+
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();

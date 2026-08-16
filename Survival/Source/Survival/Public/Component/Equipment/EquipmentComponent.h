@@ -18,6 +18,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Equip(const FInventoryItemSlot& ItemToEquip, int32 Index) override;
 	virtual void Unequip() override;
+	virtual void UnequipToSlot(int32 DestinationIndex) override;
 	virtual void TryExecutePrimaryEquipmentAction() override;
 	virtual void SetEquipmentSlot(const FInventoryItemSlot& ItemToEquip) override;
 	virtual void SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn) override;

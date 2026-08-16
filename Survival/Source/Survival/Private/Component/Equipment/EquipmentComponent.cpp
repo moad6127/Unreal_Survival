@@ -110,6 +110,39 @@ void UEquipmentComponent::Unequip()
 	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
 }
 
+void UEquipmentComponent::UnequipToSlot(int32 DestinationIndex)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return;
+	}
+
+	if (UInventoryStatics::IsItemEmpty(EquipmentItem, EmptyItem))
+	{
+		return;
+	}
+
+	UExtenedInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromComponent<UExtenedInventoryComponent>(this);
+	if (!InventoryComp)
+	{
+		return;
+	}
+
+	if (!InventoryComp->AddItemAtSlotIndex(EquipmentItem, DestinationIndex))
+	{
+		return;
+	}
+
+	FInventoryItemSlot EmptySlot;
+	EmptySlot.Item = EmptyItem;
+	EmptySlot.Amount = 1;
+	SetEquipmentSlot(EmptySlot);
+
+	DetachEquipment();
+
+	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
+}
+
 void UEquipmentComponent::TryExecutePrimaryEquipmentAction()
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())

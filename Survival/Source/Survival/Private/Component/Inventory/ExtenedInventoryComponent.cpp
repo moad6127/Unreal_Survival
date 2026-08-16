@@ -109,6 +109,27 @@ void UExtenedInventoryComponent::RemoveItemAtSlotIndex(int32 Index)
 	SetInventorySlotToEmptyByIndex(InventorySlots, Index);
 }
 
+bool UExtenedInventoryComponent::AddItemAtSlotIndex(const FInventoryItemSlot& ItemToAdd, int32 Index)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		return false;
+	}
+
+	if (!InventorySlots.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	if (!UInventoryStatics::IsItemEmpty(InventorySlots[Index], EmptySlotItem))
+	{
+		return false;
+	}
+
+	AddItemToSlotByIndex(InventorySlots, ItemToAdd, Index);
+	return true;
+}
+
 
 void UExtenedInventoryComponent::SetInventorySlotToEmptyByIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
 {
