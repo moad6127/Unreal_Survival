@@ -4,6 +4,8 @@
 #include "Actors/EquipActor/EquipActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Utils/SurvivalStatics.h"
+#include "Component/Replication/ExtenedReplicationComponent.h"
 
 AEquipActor::AEquipActor()
 {
@@ -39,16 +41,16 @@ void AEquipActor::TryPrimaryAction()
 	switch (EquipmentInfo.Generic.EquipmentType)
 	{
 	case EEquipmentType::Hatchet:
-		UE_LOG(LogTemp, Log, TEXT("Action on Hatchet"));
 		TryMeleeAction();
 		break;
 	case EEquipmentType::Sword:
-		UE_LOG(LogTemp, Log, TEXT("Action on Sword"));
 		TryMeleeAction();
 		break;
 	default:
 		break;
 	}
+
+
 }
 
 void AEquipActor::BeginPlay()
@@ -68,6 +70,24 @@ void AEquipActor::Initialize()
 
 void AEquipActor::TryMeleeAction()
 {
+	if (!EquipmentInfo.Melee.bHasMelee)
+	{
+		return;
+	}
+
+	UExtenedReplicationComponent* ReplicationComponent = USurvivalStatics::GetComponentFromActor<UExtenedReplicationComponent>(GetOwner());
+	if (!ReplicationComponent)
+	{
+		return;
+	}
+
+	if (ReplicationComponent->IsAnyMontagePlaying())
+	{
+		return;
+	}
+
+	ReplicationComponent->Client_InitializeMulticastMontage(EquipmentInfo.Melee.MeleeMontage);
+
 }
 
 

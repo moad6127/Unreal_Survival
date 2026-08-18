@@ -180,6 +180,7 @@ void UEquipmentComponent::SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSp
 	}
 	NewEquipActor->EquipmentInfo = EquipmentInfoToSpawn;
 	NewEquipActor->FinishSpawning(SpawnTransform);
+	NewEquipActor->SetOwner(GetOwner());
 
 	if (USkeletalMeshComponent* OwnerMesh = GetOwnerMesh())
 	{
@@ -194,6 +195,7 @@ void UEquipmentComponent::DetachEquipment()
 {
 	if (EquippedWeaponActor)
 	{
+		EquippedWeaponActor->SetOwner(nullptr);
 		EquippedWeaponActor->Destroy();
 		EquippedWeaponActor = nullptr;
 	}

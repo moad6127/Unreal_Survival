@@ -27,6 +27,9 @@ public:
 	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "Replication|Sound")
 	void Client_InitializeSpawnSoundAtLocation(USoundBase* Sound, FVector Location, USoundAttenuation* AttenuationSettings);
 
+	UFUNCTION(BlueprintPure, Category = "Replication|Montage")
+	bool IsAnyMontagePlaying() const;
+
 protected:
 	virtual void BeginPlay() override;
 

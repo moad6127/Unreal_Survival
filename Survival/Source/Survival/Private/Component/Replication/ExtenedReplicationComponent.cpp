@@ -23,6 +23,16 @@ void UExtenedReplicationComponent::Client_InitializeStopMulticastMontage_Impleme
 
 void UExtenedReplicationComponent::Client_InitializeSpawnSoundAtLocation_Implementation(USoundBase* Sound, FVector Location, USoundAttenuation* AttenuationSettings)
 {
+
+}
+
+bool UExtenedReplicationComponent::IsAnyMontagePlaying() const
+{
+	if (const UAnimInstance* AnimInstance = GetOwnerAnimInstance())
+	{
+		return AnimInstance->IsAnyMontagePlaying();
+	}
+	return false;
 }
 
 // Called when the game starts
