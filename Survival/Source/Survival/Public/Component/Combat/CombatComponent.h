@@ -16,10 +16,4 @@ class SURVIVAL_API UCombatComponent : public UExtenedCombatComponent
 	
 protected:
 	virtual void TryMeleeDamage() override;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
-	FVector BoxExtent = FVector(20.f, 20.f, 20.f);
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
-	float ForwardOffset = 100.f;
 };
