@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "Equipment")
 	void Server_TryExecutePrimaryEquipmentAction();
 
+	UFUNCTION(BlueprintPure, Category = "Equipment")
+	FInventoryItemSlot GetEquipmentSlot() const { return EquipmentItem; }
+
 	UPROPERTY(BlueprintAssignable, Category = "Equipment")
 	FOnEquipmentSlotUpdated OnEquipmentSlotUpdated;
 

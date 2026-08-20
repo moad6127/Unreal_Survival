@@ -23,6 +23,14 @@
 #include "Component/Equipment/EquipmentComponent.h"
 #include "Component/Combat/CombatComponent.h"
 
+float ASurvivalCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Warning, TEXT("TakeDamage"));
+	return Damage;
+}
+
 ASurvivalCharacter::ASurvivalCharacter()
 {
 	// Set size for collision capsule
