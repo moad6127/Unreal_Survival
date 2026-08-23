@@ -20,7 +20,8 @@ public class Survival : ModuleRules
 			"UMG",
 			"Slate",
             "PhysicsCore",
-            "CommonUI"
+            "CommonUI",
+            "ProceduralMeshComponent"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
