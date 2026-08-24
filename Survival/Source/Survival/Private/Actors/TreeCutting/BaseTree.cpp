@@ -6,18 +6,24 @@
 #include "KismetProceduralMeshLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Net/UnrealNetwork.h"
+#include "Utils/EquipmentStatics.h"
+#include "Utils/SurvivalStatics.h"
+#include "Component/Equipment/ExtenedEquipmentComponent.h"
+#include "Types/EquipmentTypes.h"
 
 ABaseTree::ABaseTree()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
+	/*
 	USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SetRootComponent(SceneRoot);
+	*/
 
-
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh "));
-	SetRootComponent(SceneRoot);
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh->SetupAttachment(GetRootComponent());
 
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BaseMesh->SetCollisionObjectType(ECC_GameTraceChannel2);
@@ -29,7 +35,7 @@ ABaseTree::ABaseTree()
 	* 쓰러질 때 분리되는 조각. 평소엔 숨김
 	*/
 	ProceduralMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMesh"));
-	ProceduralMesh->SetupAttachment(SceneRoot);
+	ProceduralMesh->SetupAttachment(GetRootComponent());
 	ProceduralMesh->SetVisibility(false);
 
 	ProceduralMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -63,9 +69,22 @@ ABaseTree::ABaseTree()
 	LogSpawnPoint3->SetupAttachment(ProceduralMesh);
 }
 
+void ABaseTree::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABaseTree, DamagedCursor);
+	DOREPLIFETIME(ABaseTree, CurrentOffset);
+}
+
 void ABaseTree::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	if (!BaseMesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[BaseTree] OnConstruction: BaseMesh is NULL on %s"), *GetName());
+		return;
+	}
 
 	if (StaticMeshTree)
 	{
@@ -81,6 +100,12 @@ void ABaseTree::BeginPlay()
 
 void ABaseTree::Initialize()
 {
+	if (!BaseMesh || !ProceduralMesh)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[BaseTree] Initialize aborted: BaseMesh or ProceduralMesh is NULL on %s"), *GetName());
+		return;
+	}
+
 	if (StaticMeshTree)
 	{
 		BaseMesh->SetStaticMesh(StaticMeshTree);
@@ -93,5 +118,123 @@ void ABaseTree::Initialize()
 		OriginalMaterial = BaseMesh->GetMaterial(ChoppableMaterialIndex);
 		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(OriginalMaterial, this);
 		BaseMesh->SetMaterial(ChoppableMaterialIndex, DynamicMaterialInstance);
+
+		UMaterialInterface* Test =  BaseMesh->GetMaterial(ChoppableMaterialIndex);
+		UE_LOG(LogTemp, Warning, TEXT("[BaseTree] BaseMesh 0 Materials Name : %s"),*Test->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[BaseTree] DynamicMaterialInstance Materials Name : %s"), *DynamicMaterialInstance->GetName());
 	}
+}
+
+
+float ABaseTree::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float AppliedDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (!HasAuthority() || bIsTreeBroken)
+	{
+		return AppliedDamage;
+	}
+
+	if (!EventInstigator)
+	{
+		return AppliedDamage;
+	}
+
+	UExtenedEquipmentComponent* EquipmentComp = USurvivalStatics::GetComponentFromController<UExtenedEquipmentComponent>(EventInstigator);
+	if (!EquipmentComp)
+	{
+		return AppliedDamage;
+	}
+
+	FEquipmentItem EquipmentInfo;
+	if (!UEquipmentStatics::GetEquipmentInfoFromInventorySlot(EquipmentComp->GetEquipmentSlot(), EquipmentInfo))
+	{
+		return AppliedDamage;
+	}
+
+	if (EquipmentInfo.Generic.EquipmentType != EEquipmentType::Hatchet)
+	{
+		return AppliedDamage;
+	}
+
+	if (!bMaskInitialized)
+	{
+		bMaskInitialized = true;
+		Server_InitializeMask(DamageCauser);
+	}
+
+	Server_ProcessHit();
+
+	return AppliedDamage;
+}
+
+
+void ABaseTree::OnRep_DamagedCursor()
+{
+	ApplyInitialMask(DamagedCursor);
+}
+
+void ABaseTree::OnRep_CurrentOffset()
+{
+	ApplyMaskAlpha();
+}
+
+void ABaseTree::Server_InitializeMask_Implementation(AActor* InDamageCauser)
+{
+	DamagedCursor = InDamageCauser;
+	ApplyInitialMask(DamagedCursor);
+}
+
+void ABaseTree::Server_ProcessHit_Implementation()
+{
+	if (bIsTreeBroken)
+	{
+		return;
+	}
+
+	CurrentOffset += DamageIncrement;
+	ApplyMaskAlpha(); // 서버 자신은 OnRep을 받지 못하므로 직접 호출
+
+	if (CurrentOffset >= MaxOffset)
+	{
+		SplitTree();
+	}
+}
+
+void ABaseTree::SplitTree()
+{
+}
+
+void ABaseTree::ApplyInitialMask(AActor* InDamagedCursor)
+{
+	if (!DynamicMaterialInstance || !InDamagedCursor)
+	{
+
+		return;
+	}
+	const FVector CursorLocation = GetActorLocation();
+	const FLinearColor StartLocationParam(CursorLocation.X, CursorLocation.Y, MaskHeight, 0.f);
+
+
+	UE_LOG(LogTemp, Warning, TEXT("[BaseTree] ApplyInitialMask StartLocation param=%s value=%s"),
+		*StartLocationParamName.ToString(), *StartLocationParam.ToString());
+
+	UE_LOG(LogTemp, Warning, TEXT("[BaseTree] CursorLcoation value= X : %f, Y : %f, Z : %f"),
+		InDamagedCursor->GetActorLocation().X, InDamagedCursor->GetActorLocation().Y, InDamagedCursor->GetActorLocation().Z);
+
+
+	DynamicMaterialInstance->SetVectorParameterValue(StartLocationParamName, StartLocationParam);
+	DynamicMaterialInstance->SetScalarParameterValue(InsideTilingParamName, InsideTiling);
+	DynamicMaterialInstance->SetScalarParameterValue(EdgeFalloffParamName, EdgeFalloff);
+	DynamicMaterialInstance->SetVectorParameterValue(
+		MaskBoundsParamName, FLinearColor(MaskBounds.X, MaskBounds.Y, MaskBounds.Z, 0.f));
+}
+
+void ABaseTree::ApplyMaskAlpha()
+{
+	if (!DynamicMaterialInstance)
+	{
+		return;
+	}
+	DynamicMaterialInstance->SetScalarParameterValue(OffsetMaskParamName, CurrentOffset);
 }
