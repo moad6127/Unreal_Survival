@@ -17,10 +17,10 @@ ABaseTree::ABaseTree()
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 
-	/*
+	
 	USceneComponent* SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 	SetRootComponent(SceneRoot);
-	*/
+	
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	BaseMesh->SetupAttachment(GetRootComponent());
@@ -118,10 +118,6 @@ void ABaseTree::Initialize()
 		OriginalMaterial = BaseMesh->GetMaterial(ChoppableMaterialIndex);
 		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(OriginalMaterial, this);
 		BaseMesh->SetMaterial(ChoppableMaterialIndex, DynamicMaterialInstance);
-
-		UMaterialInterface* Test =  BaseMesh->GetMaterial(ChoppableMaterialIndex);
-		UE_LOG(LogTemp, Warning, TEXT("[BaseTree] BaseMesh 0 Materials Name : %s"),*Test->GetName());
-		UE_LOG(LogTemp, Warning, TEXT("[BaseTree] DynamicMaterialInstance Materials Name : %s"), *DynamicMaterialInstance->GetName());
 	}
 }
 
@@ -213,14 +209,7 @@ void ABaseTree::ApplyInitialMask(AActor* InDamagedCursor)
 		return;
 	}
 	const FVector CursorLocation = GetActorLocation();
-	const FLinearColor StartLocationParam(CursorLocation.X, CursorLocation.Y, MaskHeight, 0.f);
-
-
-	UE_LOG(LogTemp, Warning, TEXT("[BaseTree] ApplyInitialMask StartLocation param=%s value=%s"),
-		*StartLocationParamName.ToString(), *StartLocationParam.ToString());
-
-	UE_LOG(LogTemp, Warning, TEXT("[BaseTree] CursorLcoation value= X : %f, Y : %f, Z : %f"),
-		InDamagedCursor->GetActorLocation().X, InDamagedCursor->GetActorLocation().Y, InDamagedCursor->GetActorLocation().Z);
+	const FLinearColor StartLocationParam(CursorLocation.X, CursorLocation.Y, CursorLocation.Z + MaskHeight, 0.f);
 
 
 	DynamicMaterialInstance->SetVectorParameterValue(StartLocationParamName, StartLocationParam);
@@ -237,4 +226,5 @@ void ABaseTree::ApplyMaskAlpha()
 		return;
 	}
 	DynamicMaterialInstance->SetScalarParameterValue(OffsetMaskParamName, CurrentOffset);
+
 }
