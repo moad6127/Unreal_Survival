@@ -11,6 +11,8 @@
 #include "Utils/SurvivalStatics.h"
 #include "Component/Equipment/ExtenedEquipmentComponent.h"
 #include "Types/EquipmentTypes.h"
+#include "Kismet/GameplayStatics.h"
+#include "Actors/InteractionActor/PickupItem.h"
 
 ABaseTree::ABaseTree()
 {
@@ -37,6 +39,7 @@ ABaseTree::ABaseTree()
 	ProceduralMesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMesh"));
 	ProceduralMesh->SetupAttachment(GetRootComponent());
 	ProceduralMesh->SetVisibility(false);
+	ProceduralMesh->bUseComplexAsSimpleCollision = false;
 
 	ProceduralMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	ProceduralMesh->SetCollisionObjectType(ECC_WorldStatic);
@@ -74,6 +77,7 @@ void ABaseTree::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ABaseTree, DamagedCursor);
 	DOREPLIFETIME(ABaseTree, CurrentOffset);
+	DOREPLIFETIME(ABaseTree, bIsTreeBroken);
 }
 
 void ABaseTree::OnConstruction(const FTransform& Transform)
@@ -175,6 +179,56 @@ void ABaseTree::OnRep_CurrentOffset()
 	ApplyMaskAlpha();
 }
 
+void ABaseTree::OnRep_bIsTreeBroken()
+{
+	if (!bIsTreeBroken)
+	{
+		return;
+	}
+	BaseMesh->SetVisibility(false);
+	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	ProceduralMesh->SetVisibility(true);
+
+	const FVector PlanePosition = BaseMesh->GetComponentLocation() + FVector(0.f, 0.f, MaskHeight);
+	const FVector PlaneNormal(0.25f, 0.25f, 1.f);
+
+	UProceduralMeshComponent* OtherHalf = nullptr;
+
+	UKismetProceduralMeshLibrary::SliceProceduralMesh(
+		ProceduralMesh,
+		PlanePosition,
+		PlaneNormal,
+		/*bCreateOtherHalf=*/true,
+		OtherHalf,
+		EProcMeshSliceCapOption::CreateNewSectionForCap,
+		CapMaterial);
+
+	TrunkMesh = OtherHalf;
+
+
+	EnablePhysicsOnProceduralMesh(ProceduralMesh);
+	if (TreeFallSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, TreeFallSound, GetActorLocation());
+	}
+
+	
+	// 비주얼 정리는 서버/클라 공통으로 같은 타이밍에 실행
+	GetWorldTimerManager().SetTimer(
+		HideFallenMeshTimerHandle, this, &ABaseTree::HideFallenMesh,
+		DurationBeforeSpawningLogsAfterBreak, false);
+
+	// 실제 아이템 스폰은 서버 권위로만
+	if (HasAuthority())
+	{
+		GetWorldTimerManager().SetTimer(
+			SpawnLogsTimerHandle, this, &ABaseTree::SpawnLogs,
+			DurationBeforeSpawningLogsAfterBreak, false);
+	}
+	
+}
+
 void ABaseTree::Server_InitializeMask_Implementation(AActor* InDamageCauser)
 {
 	DamagedCursor = InDamageCauser;
@@ -199,6 +253,13 @@ void ABaseTree::Server_ProcessHit_Implementation()
 
 void ABaseTree::SplitTree()
 {
+	if (bIsTreeBroken)
+	{
+		return;
+	}
+	bIsTreeBroken = true;
+
+	OnRep_bIsTreeBroken();
 }
 
 void ABaseTree::ApplyInitialMask(AActor* InDamagedCursor)
@@ -227,4 +288,87 @@ void ABaseTree::ApplyMaskAlpha()
 	}
 	DynamicMaterialInstance->SetScalarParameterValue(OffsetMaskParamName, CurrentOffset);
 
+}
+
+void ABaseTree::EnablePhysicsOnProceduralMesh(UProceduralMeshComponent* InMesh)
+{
+	if (!InMesh)
+	{
+		return;
+	}
+
+	InMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	InMesh->SetSimulatePhysics(true);
+	InMesh->SetEnableGravity(true);
+
+	const FVector Impulse = (GetActorForwardVector() * ForwardImpulseFactor) * ImpulseFactorOnBreak;
+	InMesh->AddImpulse(Impulse, NAME_None, /*bVelChange=*/true);
+}
+
+void ABaseTree::HideFallenMesh()
+{
+	if (ProceduralMesh)
+	{
+		ProceduralMesh->SetVisibility(false);
+	}
+	if (ProceduralMeshCollision)
+	{
+		ProceduralMeshCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void ABaseTree::SpawnLogs()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World || !LogPickupClass)
+	{
+		return;
+	}
+
+	TArray<USceneComponent*> SpawnPoints = { LogSpawnPoint1, LogSpawnPoint2, LogSpawnPoint3 };
+
+	int32 SpawnedCount = 0;
+	for (USceneComponent* SpawnPoint : SpawnPoints)
+	{
+		if (!SpawnPoint || SpawnedCount >= AmountOfLogsToSpawn)
+		{
+			break;
+		}
+
+		const FTransform SpawnTransform = SpawnPoint->GetComponentTransform();
+		APickupItem* NewPickup = World->SpawnActorDeferred<APickupItem>(LogPickupClass, SpawnTransform);
+		if (NewPickup)
+		{
+			FInventoryItemSlot LogSlot;
+			LogSlot.Item = LogItemRowHandle;
+			LogSlot.Amount = 1;
+			NewPickup->SetInventoryItemSlot(LogSlot);
+			NewPickup->SetSimulatePhysics(true);
+			NewPickup->FinishSpawning(SpawnTransform);
+		}
+
+		++SpawnedCount;
+	}
+
+	if (bDestorySutmp)
+	{
+		World->GetTimerManager().SetTimer(
+			DestroyStumpTimerHandle, this, &ABaseTree::DestroyStump,
+			StumpLifetimeAfterLogsSpawned, false);
+	}
+}
+
+void ABaseTree::DestroyStump()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	Destroy();
 }

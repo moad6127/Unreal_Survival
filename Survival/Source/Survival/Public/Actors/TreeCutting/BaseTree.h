@@ -9,6 +9,8 @@
 class UProceduralMeshComponent;
 class UCapsuleComponent;
 class UMaterialInstanceDynamic;
+class APickupItem;
+class USoundBase;
 
 UCLASS()
 class SURVIVAL_API ABaseTree : public AActor
@@ -35,6 +37,9 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentOffset();
 
+	UFUNCTION()
+	void OnRep_bIsTreeBroken();
+
 	UFUNCTION(Server, Reliable)
 	void Server_InitializeMask(AActor* InDamageCauser);
 
@@ -47,6 +52,10 @@ protected:
 	void ApplyInitialMask(AActor* InDamagedCursor);
 
 	void ApplyMaskAlpha();
+
+	void EnablePhysicsOnProceduralMesh(UProceduralMeshComponent* InMesh);
+	void HideFallenMesh();
+	void SpawnLogs();
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tree")
@@ -86,7 +95,7 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentOffset, BlueprintReadOnly, Category = "Tree")
 	float CurrentOffset = 0.f;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Tree")
+	UPROPERTY(ReplicatedUsing = OnRep_bIsTreeBroken,BlueprintReadWrite, Category = "Tree")
 	bool bIsTreeBroken = false;
 
 	UPROPERTY(ReplicatedUsing = OnRep_DamagedCursor)
@@ -124,4 +133,46 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Mask")
 	FVector MaskBounds = FVector(150.f, 150.f, 50.f);
+
+	// --- Split 관련 설정 (Configuration에서 오버라이드) ---
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	TObjectPtr<UMaterialInterface> CapMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	FVector ForwardImpulseFactor = FVector(1.f, 1.f, 0.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	float ImpulseFactorOnBreak = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	TObjectPtr<USoundBase> TreeFallSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	float DurationBeforeSpawningLogsAfterBreak = 3.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	int32 AmountOfLogsToSpawn = 3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	TSubclassOf<APickupItem> LogPickupClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	FDataTableRowHandle LogItemRowHandle;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UProceduralMeshComponent> TrunkMesh;
+
+	FTimerHandle HideFallenMeshTimerHandle;
+	FTimerHandle SpawnLogsTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	bool bDestorySutmp = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
+	float StumpLifetimeAfterLogsSpawned = 5.f;
+
+	void DestroyStump();
+
+	FTimerHandle DestroyStumpTimerHandle;
+
 };
