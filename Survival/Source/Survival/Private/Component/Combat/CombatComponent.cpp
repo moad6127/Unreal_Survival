@@ -32,7 +32,7 @@ void UCombatComponent::TryMeleeDamage()
 		DamageObjectTypes,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		LocalHits,
 		true);
 

@@ -114,8 +114,6 @@ void ABaseTree::Initialize()
 	{
 		BaseMesh->SetStaticMesh(StaticMeshTree);
 	}
-	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
-		BaseMesh, /*LODIndex=*/0, ProceduralMesh, /*bCreateCollision=*/true);
 
 	if (BaseMesh->GetMaterial(ChoppableMaterialIndex))
 	{
@@ -185,6 +183,16 @@ void ABaseTree::OnRep_bIsTreeBroken()
 	{
 		return;
 	}
+
+	UKismetProceduralMeshLibrary::CopyProceduralMeshFromStaticMeshComponent(
+		BaseMesh, /*LODIndex=*/0, ProceduralMesh, /*bCreateCollision=*/true);
+
+	if (OriginalMaterial)
+	{
+		ProceduralMesh->SetMaterial(ChoppableMaterialIndex, OriginalMaterial);
+	}
+
+
 	BaseMesh->SetVisibility(false);
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -205,6 +213,37 @@ void ABaseTree::OnRep_bIsTreeBroken()
 		CapMaterial);
 
 	TrunkMesh = OtherHalf;
+
+	/* Trunk와 Procedural체크하기
+	const int32 TrunkLastSection = TrunkMesh->GetNumSections() - 1;
+	UMaterialInterface* TrunkLastMat = TrunkMesh->GetMaterial(TrunkLastSection);
+	UE_LOG(LogTemp, Warning, TEXT("TrunkMesh sections: %d, last section material: %s"),
+		TrunkMesh->GetNumSections(),
+		TrunkLastMat ? *TrunkLastMat->GetName() : TEXT("NULL"));
+
+
+	const FProcMeshSection* TrunkLastSectionData = TrunkMesh->GetProcMeshSection(TrunkLastSection);
+	if (TrunkLastSectionData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TrunkMesh last section vertex count: %d"), TrunkLastSectionData->ProcVertexBuffer.Num());
+	}
+
+	const int32 ProcLastSection = ProceduralMesh->GetNumSections() - 1;
+	UMaterialInterface* ProcLastMat = ProceduralMesh->GetMaterial(ProcLastSection);
+	UE_LOG(LogTemp, Warning, TEXT("ProceduralMesh sections: %d, last section material: %s"),
+		ProceduralMesh->GetNumSections(),
+		ProcLastMat ? *ProcLastMat->GetName() : TEXT("NULL"));
+	*/
+
+	const int32 TrunkSectionCount = TrunkMesh->GetNumSections();
+	for (int32 i = 0; i < TrunkSectionCount - 1; ++i) // 마지막 하나(캡) 제외
+	{
+		TrunkMesh->SetMaterial(i, OriginalMaterial);
+	}
+	if (TrunkSectionCount > 0)
+	{
+		TrunkMesh->SetMaterial(TrunkSectionCount - 1, CapMaterial); // 마지막 = 캡
+	}
 
 
 	EnablePhysicsOnProceduralMesh(ProceduralMesh);
@@ -242,7 +281,7 @@ void ABaseTree::Server_ProcessHit_Implementation()
 		return;
 	}
 
-	CurrentOffset += DamageIncrement;
+	CurrentOffset = FMath::Min(CurrentOffset + DamageIncrement, MaxOffset);
 	ApplyMaskAlpha(); // 서버 자신은 OnRep을 받지 못하므로 직접 호출
 
 	if (CurrentOffset >= MaxOffset)
