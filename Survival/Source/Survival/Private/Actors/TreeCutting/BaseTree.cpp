@@ -13,6 +13,7 @@
 #include "Types/EquipmentTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actors/InteractionActor/PickupItem.h"
+#include "Engine/DamageEvents.h"
 
 ABaseTree::ABaseTree()
 {
@@ -132,6 +133,17 @@ float ABaseTree::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	{
 		return AppliedDamage;
 	}
+	/*
+	* 나무가 공격받으면 HitSound를 내도록 만들기
+	* ApplyPointDamge를 통해서 받으면 Impact에서, 아니라면 ActorLocation에서 소리가 나도록 하기
+	*/
+	FVector HitLocation = GetActorLocation();
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		HitLocation = PointDamageEvent->HitInfo.ImpactPoint;
+	}
+	Multicast_PlayHitSound(HitLocation);
 
 	if (!EventInstigator)
 	{
@@ -287,6 +299,14 @@ void ABaseTree::Server_ProcessHit_Implementation()
 	if (CurrentOffset >= MaxOffset)
 	{
 		SplitTree();
+	}
+}
+
+void ABaseTree::Multicast_PlayHitSound_Implementation(FVector HitLocation)
+{
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, HitLocation);
 	}
 }
 

@@ -46,6 +46,10 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_ProcessHit();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayHitSound(FVector HitLocation);
+
+
 	UFUNCTION(BlueprintCallable, Category = "Tree")
 	void SplitTree();
 
@@ -146,6 +150,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
 	TObjectPtr<USoundBase> TreeFallSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Sound")
+	TObjectPtr<USoundBase> HitSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tree|Split")
 	float DurationBeforeSpawningLogsAfterBreak = 3.f;
