@@ -22,6 +22,7 @@
 #include "Component/Crafting/CraftingComponent.h"
 #include "Component/Equipment/EquipmentComponent.h"
 #include "Component/Combat/CombatComponent.h"
+#include "Component/Building/BuildingComponent.h"
 
 float ASurvivalCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -82,7 +83,7 @@ ASurvivalCharacter::ASurvivalCharacter()
 	CraftingComponent = CreateDefaultSubobject<UCraftingComponent>(TEXT("CraftingComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UEquipmentComponent>(TEXT("EquipmentComponent"));
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
-
+	BuildingComponent = CreateDefaultSubobject<UBuildingComponent>(TEXT("BuildingComponent"));
 	
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
