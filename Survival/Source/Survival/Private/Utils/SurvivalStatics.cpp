@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Types/InventoryTypes.h"
 
 
 UEnhancedInputLocalPlayerSubsystem* USurvivalStatics::GetEnhancedInputSubsystem(APlayerController* PlayerController)
@@ -88,6 +89,7 @@ APlayerController* USurvivalStatics::GetPlayerControllerFromComponent(const UAct
 {
 	return Cast<APlayerController>(GetControllerFromComponent(Component));
 }
+
 
 bool USurvivalStatics::TraceFromActiveCamera(APlayerController* PlayerController, TEnumAsByte<ETraceTypeQuery> TraceChannel, const TArray<AActor*>& ActorsToIgnore, float FrontOffsetStartPosition, float TraceLength, FHitResult& OutHit)
 {

@@ -17,7 +17,7 @@ public:
 	UExtenedBuildingComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Building")
-	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot);
+	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Building")
 	virtual void StopBuildMode();
@@ -25,4 +25,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Building")
+	FInventoryItemSlot PendingBuildItemSlot;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Building")
+	int32 PendingInventorySourceIndex = INDEX_NONE;
 };

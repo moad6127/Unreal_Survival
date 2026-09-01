@@ -15,12 +15,14 @@ void UExtenedBuildingComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UExtenedBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot)
+void UExtenedBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex)
 {
+
 }
 
 void UExtenedBuildingComponent::StopBuildMode()
 {
+
 }
 
 

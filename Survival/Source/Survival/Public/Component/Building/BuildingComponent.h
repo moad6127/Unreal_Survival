@@ -15,6 +15,6 @@ class SURVIVAL_API UBuildingComponent : public UExtenedBuildingComponent
 	GENERATED_BODY()
 public:
 
-	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot) override;
+	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex) override;
 	virtual void StopBuildMode() override;
 };

@@ -15,6 +15,7 @@ class ACharacter;
 class AController;
 class APlayerController;
 
+
 UCLASS()
 class SURVIVAL_API USurvivalStatics : public UBlueprintFunctionLibrary
 {
