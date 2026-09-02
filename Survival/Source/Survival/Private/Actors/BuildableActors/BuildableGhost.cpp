@@ -13,5 +13,52 @@ ABuildableGhost::ABuildableGhost()
 
 	BuildableStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BuildableStaticMesh"));
 	BuildableStaticMesh->SetupAttachment(BuildableRoot);
+	BuildableStaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BuildableStaticMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BuildableStaticMesh->SetGenerateOverlapEvents(true);
 }
 
+void ABuildableGhost::SetGhostMeshMaterial(UMaterialInterface* Material)
+{
+	if (!Material || !BuildableStaticMesh)
+	{
+		return;
+	}
+
+	const int32 NumMaterials = BuildableStaticMesh->GetNumMaterials();
+	for (int32 Index = 0; Index < NumMaterials; ++Index)
+	{
+		BuildableStaticMesh->SetMaterial(Index, Material);
+	}
+}
+
+void ABuildableGhost::SetCanBuild(bool bCanBuild)
+{
+	SetGhostMeshMaterial(bCanBuild ? GreenGlassMaterial : RedGlassMaterial);
+}
+
+void ABuildableGhost::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	if (const FBuildableData* Data = GetBuildableData())
+	{
+		BuildableStaticMesh->SetStaticMesh(Data->Mesh);
+	}
+}
+
+void ABuildableGhost::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetGhostMeshMaterial(WhiteGlassMaterial);
+}
+
+const FBuildableData* ABuildableGhost::GetBuildableData() const
+{
+	if (!BuildableDataRow.DataTable)
+	{
+		return nullptr;
+	}
+	return BuildableDataRow.GetRow<FBuildableData>(TEXT("ABuildableGhost::GetBuildableData"));
+}

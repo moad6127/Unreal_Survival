@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Types/BuildableTypes.h"
 #include "BuildableGhost.generated.h"
 
 UCLASS()
@@ -13,7 +14,17 @@ class SURVIVAL_API ABuildableGhost : public AActor
 	
 public:	
 	ABuildableGhost();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildable", meta = (ExposeOnSpawn = "true"))
+	FDataTableRowHandle BuildableDataRow;
+
+	void SetGhostMeshMaterial(UMaterialInterface* Material);
+	void SetCanBuild(bool bCanBuild);
+
 protected:
+
+	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Buildable")
 	TObjectPtr<USceneComponent> BuildableRoot;
@@ -21,4 +32,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Buildable")
 	TObjectPtr<UStaticMeshComponent> BuildableStaticMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Buildable|Ghost")
+	TObjectPtr<UMaterialInterface> GreenGlassMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Buildable|Ghost")
+	TObjectPtr<UMaterialInterface> RedGlassMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Buildable|Ghost")
+	TObjectPtr<UMaterialInterface> WhiteGlassMaterial;
+
+private:
+	const FBuildableData* GetBuildableData() const;
 };
