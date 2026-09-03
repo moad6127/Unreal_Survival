@@ -17,15 +17,26 @@ void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int3
 	}
 
 
-	PendingBuildItemSlot = ItemSlot;
-	PendingInventorySourceIndex = InventorySourceIndex;
 
 	const FItem* Item = ItemSlot.Item.GetRow<FItem>(TEXT("UBuildingComponent::StartBuildMode"));
 	if (!Item)
 	{
 		return;
 	}
+
+	const FBuildableData* BuildableData = Item->CoupledDataTable.GetRow<FBuildableData>(TEXT("UBuildingComponent_Basic::StartBuildMode"));
+	if (!BuildableData)
+	{
+		// 버더블 구조체를 못 찾으면 빌드 모드를 시작하지 않음
+		return;
+	}
+
+	PendingBuildItemSlot = ItemSlot;
+	PendingInventorySourceIndex = InventorySourceIndex;
+
 	SelectedBuildableDataRow = Item->CoupledDataTable;
+	SelectedBuildableStructure = *BuildableData;
+	bSelectedBuildableStructureValid = true;
 	bBuildModeOn = true;
 
 	if (UWorld* World = GetWorld())
@@ -51,6 +62,8 @@ void UBuildingComponent::StopBuildMode()
 	PendingInventorySourceIndex = INDEX_NONE;
 
 	bBuildModeOn = false;
+	SelectedBuildableStructure = FBuildableData();
+	bSelectedBuildableStructureValid = false;
 
 	if (UWorld* World = GetWorld())
 	{
@@ -132,14 +145,52 @@ void UBuildingComponent::TraceBuildLocation()
 	}
 
 	FHitResult HitResult;
-	if (USurvivalStatics::TraceFromActiveCamera(PC, BuildTraceChannel, ActorsToIgnore, BuildTraceStartOffset, BuildTraceLength, HitResult))
+	const bool bHit = USurvivalStatics::TraceFromActiveCamera(PC, BuildTraceChannel, ActorsToIgnore, BuildTraceStartOffset, BuildTraceLength, HitResult);
+	
+	if(bHit)
 	{
-		CurrentBuildLocationTransform.SetLocation(HitResult.Location);
+		OnHitLogic(HitResult);
+		return;
+	}
 
-		if (GhostMeshActor)
-		{
-			GhostMeshActor->SetActorLocation(HitResult.Location);
-		}
+	LastHitActor = nullptr;
+	LastHitComponent = nullptr;
+	CurrentBuildLocationTransform.SetLocation(HitResult.TraceEnd);
+
+	if (GhostMeshActor)
+	{
+		GhostMeshActor->SetCanBuild(false);
+		SetGhostMeshLocation();
+	}
+}
+
+void UBuildingComponent::OnHitLogic(const FHitResult& HitResult)
+{
+	LastHitActor = HitResult.GetActor();
+	LastHitComponent = HitResult.GetComponent();
+
+	CurrentBuildLocationTransform.SetLocation(HitResult.Location);
+
+	FTransform SnapTransform;
+	const bool bSnapFound = DetectSnappingPoint(LastHitActor, LastHitComponent, SnapTransform);
+	if (bSnapFound)
+	{
+		CurrentBuildLocationTransform = SnapTransform;
+	}
+
+	const bool bOverlapping = CheckForOverlap();
+	bool bCanBuild = !bOverlapping;
+
+	// 스냅 포인트에만 배치 가능한 것들 인데 스냅 포인트를 못 찾았으면 무조건 불가
+	if (bSelectedBuildableStructureValid && SelectedBuildableStructure.bCanOnlyBePlacedAtSnappingPoints && !bSnapFound)
+	{
+		bCanBuild = false;
+	}
+
+	if (GhostMeshActor)
+	{
+		GhostMeshActor->SetCanBuild(bCanBuild);
+		SetGhostMeshLocation();
 	}
 }
 
@@ -161,4 +212,22 @@ void UBuildingComponent::SpawnGhostMesh()
 	NewGhost->FinishSpawning(CurrentBuildLocationTransform);
 
 	GhostMeshActor = NewGhost;
+}
+
+void UBuildingComponent::SetGhostMeshLocation()
+{
+	if (GhostMeshActor)
+	{
+		GhostMeshActor->SetActorTransform(CurrentBuildLocationTransform);
+	}
+}
+
+bool UBuildingComponent::DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const
+{
+	return false;
+}
+
+bool UBuildingComponent::CheckForOverlap() const
+{
+	return false;
 }

@@ -31,6 +31,10 @@ protected:
 	void BuildTick();
 	void TraceBuildLocation();
 	void SpawnGhostMesh();
+	void OnHitLogic(const FHitResult& HitResult);
+	void SetGhostMeshLocation();
+	bool DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const;
+	bool CheckForOverlap() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Building")
 	TSubclassOf<ABuildableGhost> GhostClass;
@@ -59,6 +63,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Building|Input")
 	TObjectPtr<UInputAction> StopBuildModeAction;
 
+	UPROPERTY()
+	TObjectPtr<AActor> LastHitActor;
+
+	UPROPERTY()
+	TObjectPtr<UPrimitiveComponent> LastHitComponent;
+
+	FBuildableData SelectedBuildableStructure;
+	bool bSelectedBuildableStructureValid = false;
 	FTimerHandle BuildTimerHandle;
 	bool bBuildModeOn = false;
 	FDataTableRowHandle SelectedBuildableDataRow;
