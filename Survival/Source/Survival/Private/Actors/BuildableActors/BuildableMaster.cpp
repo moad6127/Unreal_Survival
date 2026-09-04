@@ -8,6 +8,7 @@
 ABuildableMaster::ABuildableMaster()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 
 	BuildableRoot = CreateDefaultSubobject<USceneComponent>(TEXT("BuildableRoot"));
 	RootComponent = BuildableRoot;

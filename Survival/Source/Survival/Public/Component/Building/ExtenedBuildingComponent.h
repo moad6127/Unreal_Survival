@@ -19,12 +19,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Building")
 	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex);
 
-	UFUNCTION(BlueprintCallable, Category = "Building")
+	UFUNCTION(Client, Reliable, BlueprintCallable, Category = "Building")
 	virtual void StopBuildMode();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "Building")
+	void Server_SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCanBuild, int32 InventorySourceIndex);
+
 protected:
 	virtual void BeginPlay() override;
 
-	
+	virtual void SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCanBuild, int32 InventorySourceIndex);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Building")
 	FInventoryItemSlot PendingBuildItemSlot;
 

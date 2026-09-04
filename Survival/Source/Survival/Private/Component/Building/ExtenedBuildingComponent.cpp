@@ -20,10 +20,22 @@ void UExtenedBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlo
 
 }
 
-void UExtenedBuildingComponent::StopBuildMode()
+void UExtenedBuildingComponent::StopBuildMode_Implementation()
+{
+	PendingBuildItemSlot = FInventoryItemSlot();
+	PendingInventorySourceIndex = INDEX_NONE;
+}
+
+void UExtenedBuildingComponent::Server_SpawnBuildable_Implementation(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCanBuild, int32 InventorySourceIndex)
+{
+	SpawnBuildable(SpawnTransform, BuildableDataRow, bCanBuild, InventorySourceIndex);
+}
+
+void UExtenedBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCanBuild, int32 InventorySourceIndex)
 {
 
 }
+
 
 
 

@@ -8,6 +8,8 @@
 #include "GameFramework/Pawn.h"
 #include "Types/InventoryTypes.h"
 #include "Actors/BuildableActors/BuildableGhost.h"
+#include "Actors/BuildableActors/BuildableMaster.h"
+#include "Component/Inventory/ExtenedInventoryComponent.h"
 
 void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex)
 {
@@ -52,14 +54,13 @@ void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int3
 	SpawnGhostMesh();
 }
 
-void UBuildingComponent::StopBuildMode()
+void UBuildingComponent::StopBuildMode_Implementation()
 {
 	if (!bBuildModeOn)
 	{
 		return;
 	}
-	PendingBuildItemSlot = FInventoryItemSlot();
-	PendingInventorySourceIndex = INDEX_NONE;
+	Super::StopBuildMode_Implementation();
 
 	bBuildModeOn = false;
 	SelectedBuildableStructure = FBuildableData();
@@ -102,6 +103,15 @@ void UBuildingComponent::BeginPlay()
 		}
 	}
 }
+void UBuildingComponent::TrySpawnBuildable()
+{
+	if (!bBuildModeOn || !bCanBuild)
+	{
+		return;
+	}
+
+	Server_SpawnBuildable(CurrentBuildLocationTransform, SelectedBuildableDataRow, bCanBuild, PendingInventorySourceIndex);
+}
 void UBuildingComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
 {
 	APlayerController* PC = Cast<APlayerController>(NewController);
@@ -119,6 +129,10 @@ void UBuildingComponent::HandleControllerChanged(APawn* Pawn, AController* OldCo
 	if (StopBuildModeAction)
 	{
 		EnhancedInputComponent->BindAction(StopBuildModeAction, ETriggerEvent::Started, this, &UBuildingComponent::StopBuildMode);
+	}
+	if (SpawnBuildableAction)
+	{
+		EnhancedInputComponent->BindAction(SpawnBuildableAction, ETriggerEvent::Started, this, &UBuildingComponent::TrySpawnBuildable);
 	}
 }
 
@@ -155,6 +169,7 @@ void UBuildingComponent::TraceBuildLocation()
 
 	LastHitActor = nullptr;
 	LastHitComponent = nullptr;
+	bCanBuild = false;
 	CurrentBuildLocationTransform.SetLocation(HitResult.TraceEnd);
 
 	if (GhostMeshActor)
@@ -179,7 +194,7 @@ void UBuildingComponent::OnHitLogic(const FHitResult& HitResult)
 	}
 
 	const bool bOverlapping = CheckForOverlap();
-	bool bCanBuild = !bOverlapping;
+	 bCanBuild = !bOverlapping;
 
 	// 스냅 포인트에만 배치 가능한 것들 인데 스냅 포인트를 못 찾았으면 무조건 불가
 	if (bSelectedBuildableStructureValid && SelectedBuildableStructure.bCanOnlyBePlacedAtSnappingPoints && !bSnapFound)
@@ -231,3 +246,38 @@ bool UBuildingComponent::CheckForOverlap() const
 {
 	return false;
 }
+
+void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCurrentCanBuild, int32 InventorySourceIndex)
+{
+	if (!bCurrentCanBuild)
+	{
+		return;
+	}
+
+	const FBuildableData* BuildableData = BuildableDataRow.GetRow<FBuildableData>(TEXT("UBuildingComponent::SpawnBuildable"));
+	if (!BuildableData || !BuildableData->BuildableActorToSpawn)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	ABuildableMaster* NewBuildable = World->SpawnActorDeferred<ABuildableMaster>(BuildableData->BuildableActorToSpawn, SpawnTransform);
+	if (NewBuildable)
+	{
+		NewBuildable->BuildableDataRow = BuildableDataRow;
+		NewBuildable->FinishSpawning(SpawnTransform);
+	}
+
+	if (UExtenedInventoryComponent* Inventory = USurvivalStatics::GetComponentFromActor<UExtenedInventoryComponent>(GetOwner()))
+	{
+		Inventory->RemoveItemAtSlotIndex(InventorySourceIndex);
+	}
+
+	StopBuildMode();
+}
+

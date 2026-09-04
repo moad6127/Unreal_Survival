@@ -20,8 +20,10 @@ class SURVIVAL_API UBuildingComponent : public UExtenedBuildingComponent
 public:
 
 	virtual void StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex) override;
-	virtual void StopBuildMode() override;
+	virtual void StopBuildMode_Implementation() override;
 
+
+	void TrySpawnBuildable();
 protected:
 	UFUNCTION()
 	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
@@ -35,6 +37,8 @@ protected:
 	void SetGhostMeshLocation();
 	bool DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const;
 	bool CheckForOverlap() const;
+
+	virtual void SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCurrentCanBuild, int32 InventorySourceIndex) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Building")
 	TSubclassOf<ABuildableGhost> GhostClass;
@@ -61,6 +65,9 @@ protected:
 	int32 BuildingMappingPriority = 1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Building|Input")
+	TObjectPtr<UInputAction> SpawnBuildableAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Building|Input")
 	TObjectPtr<UInputAction> StopBuildModeAction;
 
 	UPROPERTY()
@@ -75,7 +82,7 @@ protected:
 	bool bBuildModeOn = false;
 	FDataTableRowHandle SelectedBuildableDataRow;
 	FTransform CurrentBuildLocationTransform;
-
+	bool bCanBuild = false;
 	UPROPERTY()
 	TObjectPtr<ABuildableGhost> GhostMeshActor;
 private:
