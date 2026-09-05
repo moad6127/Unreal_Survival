@@ -26,3 +26,12 @@ struct FBuildableData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FDataTableRowHandle LinkedInventoryItem;
 };
+
+USTRUCT(BlueprintType)
+struct FSnapTransforms
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FTransform> Transforms;
+};

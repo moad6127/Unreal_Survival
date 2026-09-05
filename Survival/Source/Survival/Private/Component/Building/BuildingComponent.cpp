@@ -239,7 +239,26 @@ void UBuildingComponent::SetGhostMeshLocation()
 
 bool UBuildingComponent::DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const
 {
-	return false;
+	const ABuildableMaster* HitBuildable = Cast<ABuildableMaster>(HitActor);
+	if (!HitBuildable)
+	{
+		return false;
+	}
+
+	if (!bSelectedBuildableStructureValid || !SelectedBuildableStructure.BuildableActorToSpawn)
+	{
+		return false;
+	}
+
+	const ABuildableMaster* HandBuildable = Cast<ABuildableMaster>(SelectedBuildableStructure.BuildableActorToSpawn->GetDefaultObject());
+	if (!HandBuildable || HandBuildable->SnapTagName.IsNone())
+	{
+		return false;
+	}
+
+
+	
+	return HitBuildable->GetNearestSnappingPointTransform(CurrentBuildLocationTransform.GetLocation(), HandBuildable->SnapTagName,OutTransform);
 }
 
 bool UBuildingComponent::CheckForOverlap() const
