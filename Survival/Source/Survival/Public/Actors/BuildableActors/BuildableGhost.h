@@ -20,7 +20,7 @@ public:
 
 	void SetGhostMeshMaterial(UMaterialInterface* Material);
 	void SetCanBuild(bool bCanBuild);
-
+	bool IsOverlappingBuildable() const;
 protected:
 
 	virtual void OnConstruction(const FTransform& Transform) override;

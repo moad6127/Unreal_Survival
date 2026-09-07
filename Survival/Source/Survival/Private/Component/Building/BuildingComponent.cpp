@@ -263,7 +263,7 @@ bool UBuildingComponent::DetectSnappingPoint(AActor* HitActor, UPrimitiveCompone
 
 bool UBuildingComponent::CheckForOverlap() const
 {
-	return false;
+	return GhostMeshActor && GhostMeshActor->IsOverlappingBuildable();
 }
 
 void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCurrentCanBuild, int32 InventorySourceIndex)

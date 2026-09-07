@@ -37,6 +37,35 @@ void ABuildableGhost::SetCanBuild(bool bCanBuild)
 	SetGhostMeshMaterial(bCanBuild ? GreenGlassMaterial : RedGlassMaterial);
 }
 
+bool ABuildableGhost::IsOverlappingBuildable() const
+{
+	if (!BuildableStaticMesh)
+	{
+		return false;
+	}
+
+	TArray<UPrimitiveComponent*> OverlappingComponents;
+	BuildableStaticMesh->GetOverlappingComponents(OverlappingComponents);
+
+	UE_LOG(LogTemp, Log, TEXT("Overlapping component count: %d"), OverlappingComponents.Num());
+
+	for (const UPrimitiveComponent* Component : OverlappingComponents)
+	{
+		if (!Component)
+		{
+			continue;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("  - %s (HasTag: %d)"), *Component->GetName(), Component->ComponentHasTag("BuildableOverlap"));
+
+		if (Component->ComponentHasTag("BuildableOverlap"))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void ABuildableGhost::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
