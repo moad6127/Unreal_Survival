@@ -4,12 +4,14 @@
 #include "Component/Building/BuildingComponent.h"
 #include "Utils/SurvivalStatics.h"
 #include "EnhancedInputComponent.h"
+#include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Types/InventoryTypes.h"
 #include "Actors/BuildableActors/BuildableGhost.h"
 #include "Actors/BuildableActors/BuildableMaster.h"
 #include "Component/Inventory/ExtenedInventoryComponent.h"
+#include "Component/UI/ExtenedUIComponent.h"
 
 void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex)
 {
@@ -17,8 +19,6 @@ void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int3
 	{
 		StopBuildMode();
 	}
-
-
 
 	const FItem* Item = ItemSlot.Item.GetRow<FItem>(TEXT("UBuildingComponent::StartBuildMode"));
 	if (!Item)
@@ -29,7 +29,6 @@ void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int3
 	const FBuildableData* BuildableData = Item->CoupledDataTable.GetRow<FBuildableData>(TEXT("UBuildingComponent_Basic::StartBuildMode"));
 	if (!BuildableData)
 	{
-		// 버더블 구조체를 못 찾으면 빌드 모드를 시작하지 않음
 		return;
 	}
 
@@ -51,6 +50,14 @@ void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int3
 		USurvivalStatics::UnlinkInputMappingContext(PC, EquipmentInputMappingContext);
 	}
 
+	if (UExtenedUIComponent* UIComponent = USurvivalStatics::GetComponentFromActor<UExtenedUIComponent>(GetOwner()))
+	{
+		if (UIComponent->IsInGameMenuActive())
+		{
+			UIComponent->CloseUI();
+		}
+	}
+
 	SpawnGhostMesh();
 }
 
@@ -65,6 +72,7 @@ void UBuildingComponent::StopBuildMode_Implementation()
 	bBuildModeOn = false;
 	SelectedBuildableStructure = FBuildableData();
 	bSelectedBuildableStructureValid = false;
+	ManualRotationYaw = 0.f;
 
 	if (UWorld* World = GetWorld())
 	{
@@ -134,7 +142,22 @@ void UBuildingComponent::HandleControllerChanged(APawn* Pawn, AController* OldCo
 	{
 		EnhancedInputComponent->BindAction(SpawnBuildableAction, ETriggerEvent::Started, this, &UBuildingComponent::TrySpawnBuildable);
 	}
+	if (RotationGhostAction)
+	{
+		EnhancedInputComponent->BindAction(RotationGhostAction, ETriggerEvent::Triggered, this, &UBuildingComponent::RotateGhost);
+	}
 }
+
+void UBuildingComponent::RotateGhost(const FInputActionValue& Value)
+{
+	if (!bBuildModeOn)
+	{
+		return;
+	}
+
+	ManualRotationYaw += Value.Get<float>() * RotationSpeed;
+}
+
 
 void UBuildingComponent::BuildTick()
 {
@@ -171,6 +194,7 @@ void UBuildingComponent::TraceBuildLocation()
 	LastHitComponent = nullptr;
 	bCanBuild = false;
 	CurrentBuildLocationTransform.SetLocation(HitResult.TraceEnd);
+	CurrentBuildLocationTransform.SetRotation(FRotator(0.f, ManualRotationYaw, 0.f).Quaternion());
 
 	if (GhostMeshActor)
 	{
@@ -186,12 +210,20 @@ void UBuildingComponent::OnHitLogic(const FHitResult& HitResult)
 
 	CurrentBuildLocationTransform.SetLocation(HitResult.Location);
 
+	FRotator BaseRotation = FRotator::ZeroRotator;
+	float RotationOffset = ManualRotationYaw;
+
 	FTransform SnapTransform;
 	const bool bSnapFound = DetectSnappingPoint(LastHitActor, LastHitComponent, SnapTransform);
 	if (bSnapFound)
 	{
-		CurrentBuildLocationTransform = SnapTransform;
+		CurrentBuildLocationTransform.SetLocation(SnapTransform.GetLocation());
+		BaseRotation = SnapTransform.Rotator();
+		RotationOffset = 0.f;
 	}
+
+	CurrentBuildLocationTransform.SetRotation((BaseRotation + FRotator(0.f, RotationOffset, 0.f)).Quaternion());
+
 
 	const bool bOverlapping = CheckForOverlap();
 	 bCanBuild = !bOverlapping;
@@ -228,6 +260,7 @@ void UBuildingComponent::SpawnGhostMesh()
 
 	GhostMeshActor = NewGhost;
 }
+
 
 void UBuildingComponent::SetGhostMeshLocation()
 {

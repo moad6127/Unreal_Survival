@@ -10,6 +10,10 @@ UExtenedUIComponent::UExtenedUIComponent()
 }
 
 
+void UExtenedUIComponent::CloseUI_Implementation()
+{
+}
+
 void UExtenedUIComponent::BeginPlay()
 {
 	Super::BeginPlay();

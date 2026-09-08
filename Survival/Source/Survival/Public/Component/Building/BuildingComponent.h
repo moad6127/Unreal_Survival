@@ -10,6 +10,7 @@ class ABuildableGhost;
 class UInputMappingContext;
 class UInputAction;
 class UEnhancedInputComponent;
+struct FInputActionValue;
 /**
  * 
  */
@@ -37,6 +38,8 @@ protected:
 	void SetGhostMeshLocation();
 	bool DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const;
 	bool CheckForOverlap() const;
+
+	void RotateGhost(const FInputActionValue& Value);
 
 	virtual void SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCurrentCanBuild, int32 InventorySourceIndex) override;
 
@@ -70,11 +73,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Building|Input")
 	TObjectPtr<UInputAction> StopBuildModeAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Building|Input")
+	TObjectPtr<UInputAction> RotationGhostAction;
+
+
 	UPROPERTY()
 	TObjectPtr<AActor> LastHitActor;
 
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> LastHitComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Building|Rotation")
+	float RotationSpeed = 15.f; // ÈÙ ÇÑ Æ½´ç È¸Àü·®(µµ)
+
+	float ManualRotationYaw = 0.f;
 
 	FBuildableData SelectedBuildableStructure;
 	bool bSelectedBuildableStructureValid = false;

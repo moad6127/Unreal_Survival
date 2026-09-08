@@ -26,6 +26,8 @@ private:
 	void OpenInGameMenu();
 	void CloseInGameMenu();
 
+	virtual void CloseUI_Implementation() override;
+
 	UFUNCTION()
 	void HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
 
@@ -40,8 +42,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* OpenAndCloseInGameMenu;
-
-	bool InGameMenuActive = false;
 
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	TSubclassOf<UUserWidget> InGameMenuWidgetClass;

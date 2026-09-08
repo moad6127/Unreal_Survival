@@ -49,10 +49,10 @@ void UInputUIComponent::HandleControllerChanged(APawn* Pawn, AController* OldCon
 
 void UInputUIComponent::HandleUIOnDeath()
 {
-	if (InGameMenuWidget && InGameMenuActive)
+	if (InGameMenuWidget && bInGameMenuActive)
 	{
 		InGameMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
-		InGameMenuActive = false;
+		bInGameMenuActive = false;
 	}
 }
 
@@ -65,7 +65,7 @@ void UInputUIComponent::OpenAndCloseInGameMenuClicked()
 		CreateInGameMenu();
 	}
 
-	if (InGameMenuActive)
+	if (bInGameMenuActive)
 	{
 		//Close
 		CloseInGameMenu();
@@ -75,9 +75,9 @@ void UInputUIComponent::OpenAndCloseInGameMenuClicked()
 		//Oepn
 		OpenInGameMenu();
 	}
-	InGameMenuActive = !InGameMenuActive;
+	bInGameMenuActive = !bInGameMenuActive;
 
-	UE_LOG(LogTemp, Warning, TEXT("OpenAndCloesInGameMenuClicked"));
+	//UE_LOG(LogTemp, Warning, TEXT("OpenAndCloesInGameMenuClicked"));
 }
 
 void UInputUIComponent::CreateInGameMenu()
@@ -109,4 +109,20 @@ void UInputUIComponent::CloseInGameMenu()
 	OwnerPlayerController->SetInputMode(InputMode);
 	OwnerPlayerController->SetShowMouseCursor(false);
 	InGameMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UInputUIComponent::CloseUI_Implementation()
+{
+	if (!bInGameMenuActive)
+	{
+		return;
+	}
+
+	if (!InGameMenuWidget)
+	{
+		return;
+	}
+
+	CloseInGameMenu();
+	bInGameMenuActive = false;
 }
