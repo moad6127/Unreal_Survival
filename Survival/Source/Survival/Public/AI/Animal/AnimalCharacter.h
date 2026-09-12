@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 #include "AnimalCharacter.generated.h"
 
+
+class UPawnSensingComponent;
+class UAttributeComponent;
+class UReplicationComponent;
+class URagdollComponent;
+
 UENUM(BlueprintType)
 enum class EAnimalIdleAction : uint8
 {
@@ -41,12 +47,47 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Animal|State")
 	EAnimalIdleAction GetIdleAction() const { return CurrentIdleAction; }
 
+	void SetAlertMovementSpeed();
+
 	// 동물별로 다르게 설정하는 가중치 목록
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animal|State")
 	TArray<FAnimalIdleActionWeight> AvailableIdleActions;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Combat")
+	float DamageAmount = 20.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|AI")
+	float WanderDistance = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
+	float BaseWalkSpeed = 150.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
+	float AlertWalkSpeed = 750.f;
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void HandleDeath();
+
+	UFUNCTION()
+	void HandleAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
+	TObjectPtr<UAttributeComponent> AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
+	TObjectPtr<UReplicationComponent> ReplicationComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
+	TObjectPtr<URagdollComponent> RagdollComponent;
+
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Animal|State")
 	EAnimalIdleAction CurrentIdleAction = EAnimalIdleAction::Breathe;
