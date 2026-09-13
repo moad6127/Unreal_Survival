@@ -47,22 +47,28 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Animal|State")
 	EAnimalIdleAction GetIdleAction() const { return CurrentIdleAction; }
 
+	UFUNCTION(BlueprintCallable, Category = "Animal|AI")
+	void SetReadyToMove(bool bReady) { bIsReadyToMove = bReady; }
+
+	UFUNCTION(BlueprintPure, Category = "Animal|AI")
+	bool IsReadyToMove() const { return bIsReadyToMove; }
+
 	void SetAlertMovementSpeed();
 
 	// 동물별로 다르게 설정하는 가중치 목록
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animal|State")
 	TArray<FAnimalIdleActionWeight> AvailableIdleActions;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animal|Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal|Combat")
 	float DamageAmount = 20.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animal|AI")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,Category = "Animal|AI")
 	float WanderDistance = 1000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal|Movement")
 	float BaseWalkSpeed = 150.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal|Movement")
 	float AlertWalkSpeed = 750.f;
 
 protected:
@@ -77,7 +83,8 @@ protected:
 	void HandleAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 
-
+	UPROPERTY(BlueprintReadOnly, Category = "Animal|AI")
+	bool bIsReadyToMove = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
 	TObjectPtr<UAttributeComponent> AttributeComponent;
