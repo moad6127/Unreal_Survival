@@ -32,6 +32,15 @@ void UAnimalIdleAnimService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		return;
 	}
 
+	
+	if (Animal->WantsToEndIdle())
+	{
+		Animal->SetIdleAction(EAnimalIdleAction::Breathe);
+		return; // 다음 타이머를 다시 걸지 않음 ? Task가 끝내주길 기다림
+	}
+
+	
+
 	PickNextIdleAction(Animal);
 	Memory->TimeUntilNextAction = FMath::FRandRange(MinIdleDuration, MaxIdleDuration);
 }
@@ -44,6 +53,7 @@ void UAnimalIdleAnimService::OnCeaseRelevant(UBehaviorTreeComponent& OwnerComp, 
 	if (AAnimalCharacter* Animal = OwnerComp.GetAIOwner() ? Cast<AAnimalCharacter>(OwnerComp.GetAIOwner()->GetPawn()) : nullptr)
 	{
 		Animal->SetIdleAction(EAnimalIdleAction::Breathe);
+		Animal->ClearEndIdleRequest();
 	}
 }
 

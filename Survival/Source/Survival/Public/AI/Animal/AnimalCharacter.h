@@ -53,6 +53,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Animal|AI")
 	bool IsReadyToMove() const { return bIsReadyToMove; }
 
+	UFUNCTION(BlueprintCallable, Category = "Animal|AI")
+	void RequestEndIdle() { bWantsToEndIdle = true; }
+
+	UFUNCTION(BlueprintCallable, Category = "Animal|AI")
+	void ClearEndIdleRequest() { bWantsToEndIdle = false; }
+
+	UFUNCTION(BlueprintPure, Category = "Animal|AI")
+	bool WantsToEndIdle() const { return bWantsToEndIdle; }
+
 	void SetAlertMovementSpeed();
 
 	// 동물별로 다르게 설정하는 가중치 목록
@@ -85,6 +94,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animal|AI")
 	bool bIsReadyToMove = true;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Animal|AI")
+	bool bWantsToEndIdle = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
 	TObjectPtr<UAttributeComponent> AttributeComponent;

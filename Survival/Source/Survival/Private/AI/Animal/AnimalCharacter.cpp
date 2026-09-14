@@ -20,6 +20,14 @@ AAnimalCharacter::AAnimalCharacter()
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
 	ReplicationComponent = CreateDefaultSubobject<UReplicationComponent>(TEXT("ReplicationComponent"));
 	RagdollComponent = CreateDefaultSubobject<URagdollComponent>(TEXT("RagdollComponent"));
+
+
+	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
+	{
+		Movement->bOrientRotationToMovement = true;
+		Movement->bUseControllerDesiredRotation = false;
+		Movement->RotationRate = FRotator(0.f, 180.f, 0.f); // 초당 180도 ? 필요하면 조정
+	}
 }
 
 void AAnimalCharacter::SetIdleAction(EAnimalIdleAction NewAction)
