@@ -85,7 +85,7 @@ void AAnimalAIController::NotifyThreatDetected(APawn* NewThreat)
 		return;
 	}
 
-	// 이미 위협이 지정돼 있으면 덮어쓰지 않음 (lecture와 동일한 의도)
+	// 이미 위협이 지정돼 있으면 덮어쓰지 않음
 	if (BlackboardComp->GetValueAsObject(TEXT("ThreatPawn")))
 	{
 		return;

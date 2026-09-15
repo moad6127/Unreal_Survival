@@ -3,6 +3,7 @@
 
 #include "AI/Animal/AnimalCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "MotionWarpingComponent.h"
 #include "Component/AttributeManager/AttributeComponent.h"
 #include "Component/Replication/ReplicationComponent.h"
 #include "Component/Ragdoll/RagdollComponent.h"
@@ -14,19 +15,18 @@
 
 AAnimalCharacter::AAnimalCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
 	ReplicationComponent = CreateDefaultSubobject<UReplicationComponent>(TEXT("ReplicationComponent"));
 	RagdollComponent = CreateDefaultSubobject<URagdollComponent>(TEXT("RagdollComponent"));
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 
-
+	bUseControllerRotationYaw = false;
 	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
 	{
-		Movement->bOrientRotationToMovement = true;
-		Movement->bUseControllerDesiredRotation = false;
-		Movement->RotationRate = FRotator(0.f, 180.f, 0.f); // 초당 180도 ? 필요하면 조정
+		Movement->bOrientRotationToMovement = false;
 	}
 }
 
@@ -63,6 +63,23 @@ void AAnimalCharacter::BeginPlay()
 	}
 
 	OnTakeAnyDamage.AddDynamic(this, &AAnimalCharacter::HandleAnyDamage);
+}
+
+void AAnimalCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	const FVector Velocity = GetVelocity();
+	if (Velocity.SizeSquared2D() < 1.f)
+	{
+		return;  // 멈춰있으면 회전 안 함
+	}
+
+	const FRotator CurrentRotation = GetActorRotation();
+	const FRotator TargetRotation = Velocity.GetSafeNormal2D().Rotation();
+
+	const FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSeconds, TurnInterpSpeed);
+	SetActorRotation(FRotator(0.f, NewRotation.Yaw, 0.f));
 }
 
 
@@ -102,6 +119,19 @@ void AAnimalCharacter::HandleAnyDamage(AActor* DamagedActor, float Damage, const
 	{
 		AIController->NotifyThreatDetected(InstigatedBy->GetPawn());
 	}
+}
+
+void AAnimalCharacter::FaceTarget(AActor* Target)
+{
+	if (!Target)
+	{
+		return;
+	}
+
+	const FVector ToTarget = Target->GetActorLocation() - GetActorLocation();
+	const FRotator LookAtRotation = ToTarget.Rotation();
+
+	SetActorRotation(FRotator(0.f, LookAtRotation.Yaw, 0.f));
 }
 
 void AAnimalCharacter::SetAlertMovementSpeed()

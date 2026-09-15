@@ -11,6 +11,8 @@ class UPawnSensingComponent;
 class UAttributeComponent;
 class UReplicationComponent;
 class URagdollComponent;
+class UMotionWarpingComponent;
+
 
 UENUM(BlueprintType)
 enum class EAnimalIdleAction : uint8
@@ -59,6 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animal|AI")
 	void ClearEndIdleRequest() { bWantsToEndIdle = false; }
 
+	UFUNCTION(BlueprintCallable, Category = "Animal|Combat")
+	void FaceTarget(AActor* Target);
+
 	UFUNCTION(BlueprintPure, Category = "Animal|AI")
 	bool WantsToEndIdle() const { return bWantsToEndIdle; }
 
@@ -84,6 +89,8 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
 
 	UFUNCTION()
 	void HandleDeath();
@@ -98,6 +105,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Animal|AI")
 	bool bWantsToEndIdle = false;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
+	float TurnInterpSpeed = 2.5f;  // ³·À»¼ö·Ï ´õ ´À±ßÇÏ°Ô µº
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
 	TObjectPtr<UAttributeComponent> AttributeComponent;
 
@@ -106,6 +117,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
 	TObjectPtr<URagdollComponent> RagdollComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Animal|State")

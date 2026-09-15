@@ -21,7 +21,8 @@ public class Survival : ModuleRules
 			"Slate",
             "PhysicsCore",
             "CommonUI",
-            "ProceduralMeshComponent"
+            "ProceduralMeshComponent",
+            "MotionWarping"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
