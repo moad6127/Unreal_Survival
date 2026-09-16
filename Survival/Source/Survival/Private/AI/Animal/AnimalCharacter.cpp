@@ -40,6 +40,22 @@ void AAnimalCharacter::SetIdleAction(EAnimalIdleAction NewAction)
 	CurrentIdleAction = NewAction;
 }
 
+void AAnimalCharacter::SetReadyToMove(bool bReady)
+{
+	bIsReadyToMove = bReady;
+	
+	AAnimalAIController* AIController = Cast<AAnimalAIController>(GetController());
+	if (!AIController)
+	{
+		return;
+	}
+
+	if (UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent())
+	{
+		BlackboardComp->SetValueAsBool(TEXT("IsReadyToMove"), bIsReadyToMove);
+	}
+}
+
 void AAnimalCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

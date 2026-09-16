@@ -50,7 +50,7 @@ public:
 	EAnimalIdleAction GetIdleAction() const { return CurrentIdleAction; }
 
 	UFUNCTION(BlueprintCallable, Category = "Animal|AI")
-	void SetReadyToMove(bool bReady) { bIsReadyToMove = bReady; }
+	void SetReadyToMove(bool bReady);
 
 	UFUNCTION(BlueprintPure, Category = "Animal|AI")
 	bool IsReadyToMove() const { return bIsReadyToMove; }
