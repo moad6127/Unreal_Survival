@@ -92,10 +92,24 @@ void AAnimalAIController::NotifyThreatDetected(APawn* NewThreat)
 	}
 
 	BlackboardComp->SetValueAsObject(TEXT("ThreatPawn"), NewThreat);
-
+	ResetChaseLeash();
 	if (AAnimalCharacter* Animal = Cast<AAnimalCharacter>(GetPawn()))
 	{
 		Animal->SetAlertMovementSpeed();
 	}
+}
+
+void AAnimalAIController::ResetChaseLeash()
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	AAnimalCharacter* Animal = Cast<AAnimalCharacter>(GetPawn());
+
+	if (!BlackboardComp || !Animal)
+	{
+		return;
+	}
+
+	BlackboardComp->SetValueAsVector(TEXT("ChaseOriginLocation"), Animal->GetActorLocation());
+	BlackboardComp->SetValueAsFloat(TEXT("ChaseStartTime"), GetWorld()->GetTimeSeconds());
 }
 

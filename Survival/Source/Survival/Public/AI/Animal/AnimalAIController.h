@@ -23,6 +23,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void NotifyThreatDetected(APawn* NewThreat);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void ResetChaseLeash();
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 

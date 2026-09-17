@@ -135,6 +135,9 @@ void AAnimalCharacter::HandleAnyDamage(AActor* DamagedActor, float Damage, const
 	{
 		AIController->NotifyThreatDetected(InstigatedBy->GetPawn());
 	}
+
+	AIController->ResetChaseLeash();  // 이미 추격 중이었어도 다시 연장
+	SetAlertMovementSpeed();
 }
 
 void AAnimalCharacter::FaceTarget(AActor* Target)
