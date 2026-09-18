@@ -12,6 +12,9 @@
 #include "BrainComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Animal/AnimalAIController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Utils/SurvivalStatics.h"
+#include "Engine/OverlapResult.h"
 
 AAnimalCharacter::AAnimalCharacter()
 {
@@ -151,6 +154,59 @@ void AAnimalCharacter::FaceTarget(AActor* Target)
 	const FRotator LookAtRotation = ToTarget.Rotation();
 
 	SetActorRotation(FRotator(0.f, LookAtRotation.Yaw, 0.f));
+}
+
+void AAnimalCharacter::DoAttack()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	FVector QueryLocation = GetActorLocation() + GetActorForwardVector() * 100.f;
+	if (AttackSocketName != NAME_None && GetMesh())
+	{
+		QueryLocation = GetMesh()->GetSocketLocation(AttackSocketName);
+	}
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	QueryParams.bTraceComplex = false;
+
+	TArray<FOverlapResult> Overlaps;
+	GetWorld()->OverlapMultiByObjectType(
+		Overlaps,
+		QueryLocation,
+		FQuat::Identity,
+		FCollisionObjectQueryParams(ECC_Pawn),
+		FCollisionShape::MakeSphere(AttackRadius),
+		QueryParams
+	);
+
+	DrawDebugSphere(GetWorld(), QueryLocation, AttackRadius, 12, FColor::Red, false, 1.f);
+
+	TSet<AActor*> HitActors;
+	for (const FOverlapResult& Overlap : Overlaps)
+	{
+		//필요하다면 인터페이스를 추가해서 인터페이스를 상속받은 액터만 공격당하게 하기
+		if (AActor* HitActor = Overlap.GetActor())
+		{
+			HitActors.Add(HitActor);
+		}
+	}
+	
+	for (AActor* HitActor : HitActors)
+	{
+		if (UExtendedAttributeComponent* Attribute = USurvivalStatics::GetComponentFromActor<UExtendedAttributeComponent>(HitActor))
+		{
+			if (Attribute->IsDead())
+			{
+				continue;
+			}
+		}
+
+		UGameplayStatics::ApplyDamage(HitActor, DamageAmount, GetController(), this, nullptr);
+	}
 }
 
 void AAnimalCharacter::SetAlertMovementSpeed()

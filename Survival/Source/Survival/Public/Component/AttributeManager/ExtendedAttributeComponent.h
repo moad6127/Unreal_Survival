@@ -24,7 +24,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	void ModifyAttribute(EAttributeTypes AttributeType, float Amount);
 
-
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	bool IsDead() { return bIsDead; }
 
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")

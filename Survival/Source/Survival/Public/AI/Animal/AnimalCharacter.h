@@ -67,6 +67,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Animal|AI")
 	bool WantsToEndIdle() const { return bWantsToEndIdle; }
 
+	UFUNCTION(BlueprintCallable, Category = "Animal|Combat")
+	void DoAttack();
+
 	void SetAlertMovementSpeed();
 
 	// 동물별로 다르게 설정하는 가중치 목록
@@ -107,6 +110,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animal|Movement")
 	float TurnInterpSpeed = 2.5f;  // 낮을수록 더 느긋하게 돎
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Combat")
+	float AttackRadius = 150.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animal|Combat")
+	FName AttackSocketName = NAME_None;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
