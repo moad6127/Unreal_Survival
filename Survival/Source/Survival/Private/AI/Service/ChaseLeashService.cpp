@@ -7,6 +7,8 @@
 #include "AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Animal/AnimalCharacter.h"
+#include "Component/AttributeManager/AttributeComponent.h"
+#include "Utils/SurvivalStatics.h"
 
 UChaseLeashService::UChaseLeashService()
 {
@@ -35,9 +37,28 @@ void UChaseLeashService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	const float DistanceFromOrigin = FVector::Dist(Animal->GetActorLocation(), ChaseOrigin);
 	const float ElapsedTime = CurrentTime - ChaseStartTime;
 
+	bool bShouldEndChase = false;
+	if (DistanceFromOrigin > LeashDistance || ElapsedTime > MaxChaseDuration)
+	{
+		bShouldEndChase = true;
+	}
+
+	if (!bShouldEndChase)
+	{
+		if (AActor* ThreatPawn = Cast<AActor>(BlackboardComp->GetValueAsObject(TEXT("ThreatPawn"))))
+		{
+			if (UExtendedAttributeComponent* Attribute = USurvivalStatics::GetComponentFromActor<UExtendedAttributeComponent>(ThreatPawn))
+			{
+				if (Attribute->IsDead())
+				{
+					bShouldEndChase = true;
+				}
+			}
+		}
+	}
 
 	//정해진 범위를 넘어가면 추격 종료하기
-	if (DistanceFromOrigin > LeashDistance || ElapsedTime > MaxChaseDuration)
+	if (bShouldEndChase)
 	{
 		BlackboardComp->ClearValue(TEXT("ThreatPawn"));
 		BlackboardComp->SetValueAsBool(TEXT("IsReturningToOrigin"), true);

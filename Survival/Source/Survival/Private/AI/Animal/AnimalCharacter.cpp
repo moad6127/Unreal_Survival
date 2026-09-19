@@ -88,6 +88,11 @@ void AAnimalCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	const FVector Velocity = GetVelocity();
 	if (Velocity.SizeSquared2D() < 1.f)
 	{

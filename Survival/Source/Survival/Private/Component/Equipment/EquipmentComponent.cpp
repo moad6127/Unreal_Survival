@@ -3,6 +3,7 @@
 
 #include "Component/Equipment/EquipmentComponent.h"
 #include "Component/Inventory/ExtenedInventoryComponent.h"
+#include "Component/AttributeManager/ExtendedAttributeComponent.h"
 #include "Utils/EquipmentStatics.h"
 #include "Utils/SurvivalStatics.h"
 #include "Utils/InventoryStatics.h"
@@ -23,6 +24,10 @@ void UEquipmentComponent::BeginPlay()
 		{
 			HandleControllerChanged(OwnerPawn, nullptr, CurrentController);
 		}
+	}
+	if (UExtendedAttributeComponent* AttributeComponent = USurvivalStatics::GetComponentFromActor<UExtendedAttributeComponent>(GetOwner()))
+	{
+		AttributeComponent->OnDeath.AddDynamic(this, &UEquipmentComponent::HandleOnDeath);
 	}
 }
 void UEquipmentComponent::HandleControllerChanged(APawn* Pawn, AController* OldController, AController* NewController)
@@ -199,4 +204,9 @@ void UEquipmentComponent::DetachEquipment()
 		EquippedWeaponActor->Destroy();
 		EquippedWeaponActor = nullptr;
 	}
+}
+
+void UEquipmentComponent::HandleOnDeath()
+{
+	DetachEquipment();
 }

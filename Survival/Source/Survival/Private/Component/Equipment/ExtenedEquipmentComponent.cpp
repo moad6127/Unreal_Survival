@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
 
+
 UExtenedEquipmentComponent::UExtenedEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -54,6 +55,8 @@ void UExtenedEquipmentComponent::BeginPlay()
 		InitialSlot.Amount = 1;
 		EquipmentItem = InitialSlot;
 	}
+
+
 	
 }
 
