@@ -7,6 +7,7 @@
 #include "Component/AttributeManager/AttributeComponent.h"
 #include "Component/Replication/ReplicationComponent.h"
 #include "Component/Ragdoll/RagdollComponent.h"
+#include "Component/LootDrop/LootDropComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BrainComponent.h"
@@ -25,6 +26,7 @@ AAnimalCharacter::AAnimalCharacter()
 	ReplicationComponent = CreateDefaultSubobject<UReplicationComponent>(TEXT("ReplicationComponent"));
 	RagdollComponent = CreateDefaultSubobject<URagdollComponent>(TEXT("RagdollComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	LootDropComponent = CreateDefaultSubobject<ULootDropComponent>(TEXT("LootDropComponent"));
 
 	bUseControllerRotationYaw = false;
 	if (UCharacterMovementComponent* Movement = GetCharacterMovement())

@@ -12,6 +12,7 @@ class UAttributeComponent;
 class UReplicationComponent;
 class URagdollComponent;
 class UMotionWarpingComponent;
+class ULootDropComponent;
 
 
 UENUM(BlueprintType)
@@ -130,6 +131,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animal|Components")
+	TObjectPtr<ULootDropComponent> LootDropComponent;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Animal|State")
 	EAnimalIdleAction CurrentIdleAction = EAnimalIdleAction::Breathe;
