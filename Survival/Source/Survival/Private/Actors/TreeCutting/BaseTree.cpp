@@ -226,27 +226,6 @@ void ABaseTree::OnRep_bIsTreeBroken()
 
 	TrunkMesh = OtherHalf;
 
-	/* Trunk와 Procedural체크하기
-	const int32 TrunkLastSection = TrunkMesh->GetNumSections() - 1;
-	UMaterialInterface* TrunkLastMat = TrunkMesh->GetMaterial(TrunkLastSection);
-	UE_LOG(LogTemp, Warning, TEXT("TrunkMesh sections: %d, last section material: %s"),
-		TrunkMesh->GetNumSections(),
-		TrunkLastMat ? *TrunkLastMat->GetName() : TEXT("NULL"));
-
-
-	const FProcMeshSection* TrunkLastSectionData = TrunkMesh->GetProcMeshSection(TrunkLastSection);
-	if (TrunkLastSectionData)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TrunkMesh last section vertex count: %d"), TrunkLastSectionData->ProcVertexBuffer.Num());
-	}
-
-	const int32 ProcLastSection = ProceduralMesh->GetNumSections() - 1;
-	UMaterialInterface* ProcLastMat = ProceduralMesh->GetMaterial(ProcLastSection);
-	UE_LOG(LogTemp, Warning, TEXT("ProceduralMesh sections: %d, last section material: %s"),
-		ProceduralMesh->GetNumSections(),
-		ProcLastMat ? *ProcLastMat->GetName() : TEXT("NULL"));
-	*/
-
 	const int32 TrunkSectionCount = TrunkMesh->GetNumSections();
 	for (int32 i = 0; i < TrunkSectionCount - 1; ++i) // 마지막 하나(캡) 제외
 	{
