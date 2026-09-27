@@ -1,12 +1,12 @@
 # Unreal_Survival
 
-```
+
 Unreal Engine 5를 활용해 자원 채집부터 기지 구축까지의 메커니즘을 구현한 멀티플레이어 서바이벌 게임 프로젝트입니다.
 
 외부 하이트맵 기반의 지형 생성 및 자동 머티리얼을 시작으로, 자원 채집(나무 파괴 및 재료 획득), 인벤토리 및 제작(Crafting), 기지 구축을 위한 건축(Building) 시스템 등 서바이벌 장르의 핵심 요소를 구성했습니다.
 
 특히 Udemy의 Build a multiplayer survival framework 강의를 바탕으로 학습을 진행하며, 기존의 블루프린트 로직과 UI 구조를 면밀히 분석한 후 코어 시스템을 C++ 기반으로 재설계 및 모듈화하여 구조적 완성도와 성능을 개선했습니다.
-```
+
 
 
 <img width="1938" height="1058" alt="Image" src="https://github.com/user-attachments/assets/ab041926-fd6a-4550-a398-47b7689ec3ac" />
@@ -51,9 +51,9 @@ Unreal Engine 5를 활용해 자원 채집부터 기지 구축까지의 메커�
 
   ### environment
 
-  ```
+  
   Map에서 자원을 얻기 위해서 나무를 제거하거나 바닥에서 돌을 줍는등의 행동을 할수 있도록 Actor를 폴리지로 생성해서 Map에 넣어 두었다.
-  ```
+  
 
 ***Foliage Actors***
 
@@ -164,8 +164,49 @@ void ABaseTree::OnRep_bIsTreeBroken()
 
   * 이후에 정해진 개수만큼 나무토막을 Spawn하기 위해서 ***SpawnLogs***함수를 호출하기
 
-
   ## Inventory
+
+<img width="1938" height="1058" alt="Image" src="https://github.com/user-attachments/assets/aebc44b4-562d-4593-bce7-845bca8f0103" />
+
+
+```C++
+
+void UInventoryComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	if (GetOwner()->HasAuthority())
+	{
+		InitInventory();
+	}
+}
+
+void UInventoryComponent::InitInventory()
+{
+	int32 InitInventoryNum = InventorySlots.Num();
+	for (int32 Index = 0; Index < DefaultInventorySlotAmount - InitInventoryNum; Index++)
+	{
+		CreateEmptySlot(InventorySlots);
+	}
+}
+
+int32 UInventoryComponent::CreateEmptySlot(TArray<FInventoryItemSlot>& TargetInventory)
+{
+	FInventoryItemSlot EmptySlot;
+	EmptySlot.Item = EmptySlotItem;
+	return TargetInventory.Add(EmptySlot);
+}
+
+```
+  * **슬롯 기반 인벤토리 관리**: Inventory를 담당할 Component의 Beginplay에서 Init을 진행해서 인벤토리를 구성  
+	* 인벤토리의 아이템들은 다른 인벤토리 슬롯으로 옮길수도 있도록 만들어져 있음.
+
+
+
+
+  * **자동 아이템 습득 및 월드 드롭**:
+    * **Add Item**: 인벤토리 내 빈 슬롯을 찾아 아이템을 추가하며, 남은 공간이 없을 경우 플레이어 앞위치(`SpawnItem`)에 디퍼드 스폰(`World->SpawnActorDeferred`)을 활용해 물리가 적용된 드롭 아이템(`APickupItem`)으로 배치합니다.
+    * **Drop Item**: 지정한 슬롯의 아이템을 필드에 스폰하고 해당 슬롯을 비웁니다.
+
   
   ### Item
   ### Equipmemt
