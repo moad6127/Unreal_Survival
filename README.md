@@ -169,6 +169,11 @@ void ABaseTree::OnRep_bIsTreeBroken()
 <img width="1938" height="1058" alt="Image" src="https://github.com/user-attachments/assets/aebc44b4-562d-4593-bce7-845bca8f0103" />
 
 
+
+  * **슬롯 기반 인벤토리 관리**: Inventory를 담당할 Component의 Beginplay에서 Init을 진행해서 인벤토리를 구성  
+	* 인벤토리의 아이템들은 다른 인벤토리 슬롯으로 옮길수도 있도록 만들어져 있음.
+
+
 ```C++
 
 void UInventoryComponent::BeginPlay()
@@ -197,18 +202,69 @@ int32 UInventoryComponent::CreateEmptySlot(TArray<FInventoryItemSlot>& TargetInv
 }
 
 ```
-  * **슬롯 기반 인벤토리 관리**: Inventory를 담당할 Component의 Beginplay에서 Init을 진행해서 인벤토리를 구성  
-	* 인벤토리의 아이템들은 다른 인벤토리 슬롯으로 옮길수도 있도록 만들어져 있음.
+
+```C++
+/*Add Item*/
+void UInventoryComponent::TryAddItemToInventoryAutomatically(TArray<FInventoryItemSlot>& TargetInventory, const FInventoryItemSlot& ItemToAdd)
+{
+	int32 EmptyIndex = 0;
+	if (FindEmptySlot(TargetInventory, EmptyIndex)) // 인벤토리에 남은 자리를 확인한다.
+	{
+		AddItemToSlotByIndex(TargetInventory, ItemToAdd, EmptyIndex);
+	}
+	else // 자리가 없을경우 다시 World에 Spawn하게 만든다.
+	{
+		SpawnItem(ItemToAdd);
+	}
+}
 
 
+/*Drop Item*/
 
+void UInventoryComponent::DropItemBySlotIndex(TArray<FInventoryItemSlot>& TargetInventory, int32 Index)
+{
+	if (!TargetInventory.IsValidIndex(Index))
+	{
+		return;
+	}
+	const FInventoryItemSlot ItemToDrop = TargetInventory[Index]; // 버릴아이템의 인덱스를 찾는다
+	SpawnItem(ItemToDrop);
 
+		//버려진 아이템의 인덱스를 다시 초기화 한다.
+	SetInventorySlotToEmptyByIndex(TargetInventory, Index); 
+
+}
+
+/*Spawn Item*/
+void UInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn)
+{
+	UWorld* World = GetWorld();
+	AActor* Owner = GetOwner();
+	if (!PickupItemClass || !World || !Owner)
+	{
+		return;
+	}
+
+	FVector SpawnLocation = Owner->GetActorLocation() + Owner->GetActorForwardVector() * 10.f;
+	SpawnLocation.Z += 50.f;
+	const FTransform SpawnTransform(Owner->GetActorRotation(), SpawnLocation, FVector::OneVector);
+	APickupItem* SpawnedItem = World->SpawnActorDeferred<APickupItem>(PickupItemClass, SpawnTransform);
+	if (SpawnedItem)
+	{
+		SpawnedItem->SetInventoryItemSlot(ItemToSpawn);
+		SpawnedItem->SetSimulatePhysics(true);
+		SpawnedItem->FinishSpawning(SpawnTransform);
+	}
+}
+
+```
   * **자동 아이템 습득 및 월드 드롭**:
     * **Add Item**: 인벤토리 내 빈 슬롯을 찾아 아이템을 추가하며, 남은 공간이 없을 경우 플레이어 앞위치(`SpawnItem`)에 디퍼드 스폰(`World->SpawnActorDeferred`)을 활용해 물리가 적용된 드롭 아이템(`APickupItem`)으로 배치합니다.
     * **Drop Item**: 지정한 슬롯의 아이템을 필드에 스폰하고 해당 슬롯을 비웁니다.
 
-  
   ### Item
+
+
   ### Equipmemt
 
   ## Crafting
