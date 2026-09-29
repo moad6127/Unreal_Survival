@@ -264,6 +264,76 @@ void UInventoryComponent::SpawnItem(const FInventoryItemSlot& ItemToSpawn)
 
   ### Item
 
+데이터 테이블 기반의 유연한 아이템 구조 설계와 네트워크 리플리케이션을 지원하는 필드 아이템(Pickup) 액터 시스템을 구현했습니다.
+
+### 주요 특징
+
+
+```cpp
+// 데이터 테이블 행 구조체로 아이템 속성(기본 정보, 제작, 능력치)을 묶어 관리
+USTRUCT(BlueprintType)
+struct FItem : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FItemAttributeGeneric Generic;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FItemAttributeCrafting Crafting;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FItemAssignedAttribute AssignedAttribute;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FDataTableRowHandle CoupledDataTable;
+};
+```
+
+* **데이터 기반 구조 설계 (`FItem`)**: `FDataTableRowHandle`을 활용해 아이템 메타데이터(`FItemAttributeGeneric`), 제작 레시피(`FItemAttributeCrafting`), 능력치(`FItemAssignedAttribute`)를 데이터 테이블로 일원화 관리하여 확장성을 확보했습니다.
+
+
+```C++
+void APickupItem::Interact_Implementation(AController* InstigatorController)
+{
+	if (!InstigatorController)
+	{
+		return;
+	}
+
+	if (UInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromController<UInventoryComponent>(InstigatorController))
+	{
+		InventoryComp->Server_TryAddItemToInventoryAutomatically(InventoryItemSlot);
+	}
+	Destroy();
+}
+```
+* **필드 아이템 상호작용 및 습득 처리** : ServerRPC를 활용해서 멀티플레이 환경에서도 획득이 안전하도록 설정
+
+```C++
+void APickupItem::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	UpdateFromItemData();
+}
+
+
+void APickupItem::UpdateFromItemData()
+{
+    FItem ItemData;
+    if (!UInventoryStatics::GetInventoryItemInfoFromSlot(InventoryItemSlot, ItemData))
+    {
+        return;
+    }
+
+    // 아이템 정보에 맞춰 필드 메시 및 상호작용 UI 텍스트 동적 설정
+    ItemMesh->SetStaticMesh(ItemData.Generic.ItemMesh);
+    InteractText = FText::Format(NSLOCTEXT("Pickup", "PickupPrompt", "[E] Pick up {0}"), ItemData.Generic.ItemName);
+}
+```
+* **필드 드롭 및 동적 동기화 (`APickupItem`)**: 필드에 생성되는 아이템은 네트워크 리플리케이션(`ReplicatedUsing`)을 통해 멀티플레이 환경에서 물리(Physics) 및 슬롯 정보(`FInventoryItemSlot`)를 동기화합니다.
+
+* **`OnConstruction` & RepNotify 활용 UI/메시 갱신**: 서버 및 클라이언트에서 아이템 정보가 변경될 때 `UpdateFromItemData()`를 호출해 스태틱 메시 및 상호작용 텍스트(예: `[E] Pick up ...`)를 동적으로 업데이트합니다.
 
   ### Equipmemt
 

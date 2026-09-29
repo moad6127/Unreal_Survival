@@ -3,6 +3,7 @@
 
 #include "Actors/InteractionActor/PickupItem.h"
 #include "Utils/InventoryStatics.h"
+#include "Utils/SurvivalStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Component/Inventory/InventoryComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -39,12 +40,8 @@ void APickupItem::Interact_Implementation(AController* InstigatorController)
 		return;
 	}
 
-	APawn* InstigatorPawn = InstigatorController->GetPawn();
-	if (!InstigatorPawn)
-	{
-		return;
-	}
-	if (UInventoryComponent* InventoryComp = InstigatorPawn->FindComponentByClass<UInventoryComponent>())
+
+	if (UInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromController<UInventoryComponent>(InstigatorController))
 	{
 		InventoryComp->Server_TryAddItemToInventoryAutomatically(InventoryItemSlot);
 	}
