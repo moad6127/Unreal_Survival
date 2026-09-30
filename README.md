@@ -337,9 +337,113 @@ void APickupItem::UpdateFromItemData()
 
   ### Equipmemt
 
-  ## Crafting
+```C++
+  void UEquipmentComponent::Equip(const FInventoryItemSlot& ItemToEquip,int32 Index)
+{
+	...
+	// 이미 뭔가 장착되어 있으면 아무 것도 하지 않는다 (스왑은 나중에 확장 가능)
+	if (!UInventoryStatics::IsItemEmpty(EquipmentItem, EmptyItem))
+	{
+		return;
+	}
 
-  ## BuildingSystem
+	// 이 아이템이 장착 가능한지 확인 (FItem.CoupledDataTable을 통해 DT_Equipment 조회). 못 찾으면 아무 것도 하지 않는다.
+	FEquipmentItem EquipmentInfo;
+	if (!UEquipmentStatics::GetEquipmentInfoFromInventorySlot(ItemToEquip, EquipmentInfo))
+	{
+		return;
+	}
+	UExtenedInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromComponent<UExtenedInventoryComponent>(this);
+	if (!InventoryComp)
+	{
+		return;
+	}
+	InventoryComp->RemoveItemAtSlotIndex(Index);
+	
+	SetEquipmentSlot(ItemToEquip);
+	SpawnAndAttach(EquipmentInfo);
+	// 서버는 자기 자신의 OnRep_EquipmentItem을 받지 못하므로 직접 브로드캐스트
+	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
+}
 
-  ## AnimalAI
+void UEquipmentComponent::SpawnAndAttach(const FEquipmentItem& EquipmentInfoToSpawn)
+{
+	...
+	const FTransform SpawnTransform = FTransform::Identity;
+	AEquipActor* NewEquipActor = World->SpawnActorDeferred<AEquipActor>(EquipActorClass, SpawnTransform, GetOwner(), Cast<APawn>(GetOwner()));
+	if (!NewEquipActor)
+	{
+		return;
+	}
+	NewEquipActor->EquipmentInfo = EquipmentInfoToSpawn;
+	NewEquipActor->FinishSpawning(SpawnTransform);
+	NewEquipActor->SetOwner(GetOwner());
+
+	if (USkeletalMeshComponent* OwnerMesh = GetOwnerMesh())
+	{
+		NewEquipActor->AttachToComponent(OwnerMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, EquipmentInfoToSpawn.Equip.SocketName);
+		NewEquipActor->SetActorRelativeTransform(EquipmentInfoToSpawn.Equip.SocketOffset.ToTransform());
+	}
+
+	EquippedWeaponActor = NewEquipActor;
+}
+```
+
+* 액터 스폰 및 소켓 부착 : 아이템 장착 시 `FEquipmentItem` 데이터 테이블 정보를 조회해 지정된 `AEquipActor` 클래스를 디퍼드 스폰(SpawnActorDeferred) 후, 캐릭터 스켈레탈 메시의 지정 소켓(SocketName) 및 오프셋에 자동 부착합니다.
+
+```C++
+/*장착된 아이템을 해제할때 호출되는 함수.*/
+void UEquipmentComponent::UnequipToSlot(int32 DestinationIndex)
+{
+	...
+	UExtenedInventoryComponent* InventoryComp = USurvivalStatics::GetComponentFromComponent<UExtenedInventoryComponent>(this);
+	if (!InventoryComp)
+	{
+		return;
+	}
+
+	if (!InventoryComp->AddItemAtSlotIndex(EquipmentItem, DestinationIndex))
+	{
+		return;
+	}
+
+	FInventoryItemSlot EmptySlot;
+	EmptySlot.Item = EmptyItem;
+	EmptySlot.Amount = 1;
+	SetEquipmentSlot(EmptySlot);
+
+	DetachEquipment();
+
+	OnEquipmentSlotUpdated.Broadcast(EquipmentItem);
+}
+
+/*캐릭터가 죽었을경우 호출되는 함수*/
+void UEquipmentComponent::HandleOnDeath()
+{
+	DetachEquipment();
+}
+
+void UEquipmentComponent::DetachEquipment()
+{
+	if (EquippedWeaponActor)
+	{
+		EquippedWeaponActor->SetOwner(nullptr);
+		EquippedWeaponActor->Destroy();
+		EquippedWeaponActor = nullptr;
+	}
+}
+
+
+```
+* 장착을 해제 및 사망 처리 : 장착을 해제하거나 캐릭터가 사망처리 되었을때는 장착된 아이템을 해제하도록 만든다.
+
+
+## Crafting
+
+
+
+## BuildingSystem
+
+
+## AnimalAI
   
