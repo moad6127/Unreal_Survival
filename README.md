@@ -440,6 +440,60 @@ void UEquipmentComponent::DetachEquipment()
 
 ## Crafting
 
+<img width="1938" height="1058" alt="Image" src="https://github.com/user-attachments/assets/515401e7-1bf3-4ce3-91ac-b27fd6f1005a" />
+
+
+데이터 테이블 기반의 유연한 제작 레시피 관리와 FTimerManager 기반의 비동기 제작 타이머, 그리고 네트워크 리플리케이션을 지원하는 제작(Crafting) 시스템을 구현했습니다.
+
+### 주요 특징
+
+```C++
+void UCraftingComponent::SetDefaultRecipesFromDataTable()
+{
+	if (!ItemDataTable)
+	{
+		return;
+	}
+	for (const FName& RowName : ItemDataTable->GetRowNames())
+	{
+		const FItem* Row = ItemDataTable->FindRow<FItem>(RowName, TEXT("SetDefaultRecipesFromDataTable"));
+		if (!Row || !Row->Crafting.bIsCraftable)
+		{
+			continue;
+		}
+
+		//중복일경우 넘기기
+		const bool bAlreadyKnown = Recipes.ContainsByPredicate([&RowName, this](const FInventoryItemSlot& Existing)
+			{
+				return Existing.Item.DataTable == ItemDataTable && Existing.Item.RowName == RowName;
+			});
+
+		if (bAlreadyKnown)
+		{
+			continue;
+		}
+
+		FInventoryItemSlot NewRecipeSlot;
+		NewRecipeSlot.Item.DataTable = ItemDataTable;
+		NewRecipeSlot.Item.RowName = RowName;
+		NewRecipeSlot.Amount = 1;
+
+		Recipes.Add(NewRecipeSlot);
+	}
+}
+```
+- **데이터 기반 레시피 자동 로드 (`SetDefaultRecipesFromDataTable`)**
+  - `UDataTable`을 순회하여 `bIsCraftable` 속성이 활성화된 아이템 동적 파싱 및 레시피 자동 등록
+  - 기존에 알려진 레시피 중복 등록 방지 로직 적용
+
+
+- **`FTimerManager` 기반 비동기 진행 (`StartCrafting`, `TickCraftingTimer`)**
+  - 매 프레임 Tick 대신 지정된 타이머 간격(`CraftingTickInterval`)으로 잔여 제작 시간을 감소시켜 성능 최적화
+  - 제작 완료 시 서버 권위로 인벤토리에 결과 아이템을 자동 추가(`Server_TryAddItemToInventoryAutomatically`)
+
+
+---
+
 
 
 ## BuildingSystem
