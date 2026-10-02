@@ -486,7 +486,73 @@ void UCraftingComponent::SetDefaultRecipesFromDataTable()
   - `UDataTable`을 순회하여 `bIsCraftable` 속성이 활성화된 아이템 동적 파싱 및 레시피 자동 등록
   - 기존에 알려진 레시피 중복 등록 방지 로직 적용
 
+```C++
+void UCraftingComponent::TryCraftItem(const FInventoryItemSlot& ItemToCraft)
+{
+	//이미 크래프팅중이라면 넘기기,
+	if (bIsCrafting)
+	{
+		return;
+	}
+	...
 
+	// 인벤토리에 제작에 필요한 아이템들이 존재하는지 확인하기
+	if (!InventoryComponent->CanArrayOfItemsBeFoundInInventory(ItemRow->Crafting.Recipe))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not sufficient items to craft %s"), *ItemToCraft.Item.RowName.ToString());
+		return;
+	}
+
+	// 제작에 사용된 아이템들은 제거
+	for (const FInventoryItemSlot& RecipeIngredient : ItemRow->Crafting.Recipe)
+	{
+		InventoryComponent->Server_RemoveItemFromInventoryAutomatically(RecipeIngredient, RecipeIngredient.Amount);
+	}
+
+	StartCrafting(ItemToCraft);
+}
+
+void UCraftingComponent::StartCrafting(const FInventoryItemSlot& ItemToStartCrafting)
+{
+	bIsCrafting = true;
+	CurrentlyCraftingItem = ItemToStartCrafting;
+
+	StartingCraftingTime = DefaultCraftingTime;
+	CurrentCraftingTime = StartingCraftingTime;
+
+	// Timer를 계속생성하지 않고 한번만 생성한후 Pause를 사용해서 재사용하도록 만들기
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	if (CraftingTimerHandle.IsValid())
+	{
+		TimerManager.UnPauseTimer(CraftingTimerHandle);
+	}
+	else
+	{
+		TimerManager.SetTimer(CraftingTimerHandle, this, &UCraftingComponent::TickCraftingTimer, CraftingTickInterval, true);
+	}
+}
+
+void UCraftingComponent::TickCraftingTimer()
+{
+	CurrentCraftingTime -= CraftingTickInterval;
+
+	if (CurrentCraftingTime > 0.f)
+	{
+		return;
+	}
+
+	GetWorld()->GetTimerManager().PauseTimer(CraftingTimerHandle);
+
+	if (UExtenedInventoryComponent* InventoryComponent = USurvivalStatics::GetComponentFromActor<UExtenedInventoryComponent>(GetOwner()))
+	{
+		InventoryComponent->Server_TryAddItemToInventoryAutomatically(CurrentlyCraftingItem);
+	}
+
+	CurrentlyCraftingItem = FInventoryItemSlot();
+	bIsCrafting = false;
+}
+
+```
 - **`FTimerManager` 기반 비동기 진행 (`StartCrafting`, `TickCraftingTimer`)**
   - 매 프레임 Tick 대신 지정된 타이머 간격(`CraftingTickInterval`)으로 잔여 제작 시간을 감소시켜 성능 최적화
   - 제작 완료 시 서버 권위로 인벤토리에 결과 아이템을 자동 추가(`Server_TryAddItemToInventoryAutomatically`)
