@@ -564,12 +564,69 @@ void UCraftingComponent::TickCraftingTimer()
 
 <img width="1938" height="1058" alt="Image" src="https://github.com/user-attachments/assets/ab041926-fd6a-4550-a398-47b7689ec3ac" />
 
-> Craft를 사용해서 건축물을 만든후 월드에 배치하는 방식
 
-- **C++ 기반 모듈화 건축 시스템**: `UExtenedBuildingComponent`를 상속받은 `UBuildingComponent`에서 건축 모드 전환, 라인트레이싱, 스냅 및 오버랩 검사, 스폰 로직을 모듈화하여 구현.
+```C++
+void UBuildingComponent::StartBuildMode(const FInventoryItemSlot& ItemSlot, int32 InventorySourceIndex)
+{
+	...
+
+	const FItem* Item = ItemSlot.Item.GetRow<FItem>(TEXT("UBuildingComponent::StartBuildMode"));
+	if (!Item)
+	{
+		return;
+	}
+
+	const FBuildableData* BuildableData = Item->CoupledDataTable.GetRow<FBuildableData>(TEXT("UBuildingComponent_Basic::StartBuildMode"));
+	if (!BuildableData)
+	{
+		return;
+	}
+
+	PendingBuildItemSlot = ItemSlot;
+	PendingInventorySourceIndex = InventorySourceIndex;
+
+	SelectedBuildableDataRow = Item->CoupledDataTable;
+	SelectedBuildableStructure = *BuildableData;
+	bSelectedBuildableStructureValid = true;
+	bBuildModeOn = true;
+
+	...
+
+	SpawnGhostMesh();
+}
+
+void UBuildingComponent::SpawnGhostMesh()
+{
+	UWorld* World = GetWorld();
+	if (!World || !GhostClass)
+	{
+		return;
+	}
+
+	ABuildableGhost* NewGhost = World->SpawnActorDeferred<ABuildableGhost>(GhostClass, CurrentBuildLocationTransform);
+	if (!NewGhost)
+	{
+		return;
+	}
+
+	NewGhost->BuildableDataRow = SelectedBuildableDataRow;
+	NewGhost->FinishSpawning(CurrentBuildLocationTransform);
+
+	GhostMeshActor = NewGhost;
+}
+```
+- **C++ 기반 모듈화 건축 시스템**: 건축 모드 전환, 라인트레이싱등을 사용해서 건축물 위치 정하기      
+- **실시간 프리뷰(GhostMesh)** 를 사용해서 정한곳의 위치를 알수 있도록 확인, 불가능한 위치일경우 붉은색으로 표시     
 
 
-- **실시간 프리뷰(Ghost Mesh) 및 스냅(Snapping) 연산**: 카메라 시선 방향 트레이싱을 통해 설치 위치를 추적하고, 인접한 건축물(`ABuildableMaster`)의 스냅 포인트를 감지하여 자동 정렬 및 회전 지원.
+
+
+
+```C++
+```
+
+
+- **스냅(Snapping) 연산**: 카메라 시선 방향 트레이싱을 통해 설치 위치를 추적하고, 인접한 건축물(`ABuildableMaster`)의 스냅 포인트를 감지하여 자동 정렬 및 회전 지원.     
 
 
 ## AnimalAI

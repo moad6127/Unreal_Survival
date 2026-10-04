@@ -289,8 +289,6 @@ bool UBuildingComponent::DetectSnappingPoint(AActor* HitActor, UPrimitiveCompone
 		return false;
 	}
 
-
-	
 	return HitBuildable->GetNearestSnappingPointTransform(CurrentBuildLocationTransform.GetLocation(), HandBuildable->SnapTagName,OutTransform);
 }
 
