@@ -614,6 +614,8 @@ void UBuildingComponent::SpawnGhostMesh()
 
 	GhostMeshActor = NewGhost;
 }
+
+
 ```
 - **C++ 기반 모듈화 건축 시스템**: 건축 모드 전환, 라인트레이싱등을 사용해서 건축물 위치 정하기      
 - **실시간 프리뷰(GhostMesh)** 를 사용해서 정한곳의 위치를 알수 있도록 확인, 불가능한 위치일경우 붉은색으로 표시     
@@ -623,10 +625,125 @@ void UBuildingComponent::SpawnGhostMesh()
 
 
 ```C++
+
+
+void UBuildingComponent::TraceBuildLocation()
+{
+	...
+
+	FHitResult HitResult;
+	const bool bHit = USurvivalStatics::TraceFromActiveCamera(PC, BuildTraceChannel, ActorsToIgnore, BuildTraceStartOffset, BuildTraceLength, HitResult);
+	
+	if(bHit)
+	{
+		OnHitLogic(HitResult);
+		return;
+	}
+	...
+}
+
+void UBuildingComponent::OnHitLogic(const FHitResult& HitResult)
+{
+	...
+
+	/*스냅 포인트가 존재하는지 확인하기*/
+	FTransform SnapTransform;
+	const bool bSnapFound = DetectSnappingPoint(LastHitActor, LastHitComponent, SnapTransform);
+	if (bSnapFound)
+	{
+		CurrentBuildLocationTransform.SetLocation(SnapTransform.GetLocation());
+		BaseRotation = SnapTransform.Rotator();
+		RotationOffset = 0.f;
+	}
+
+	CurrentBuildLocationTransform.SetRotation((BaseRotation + FRotator(0.f, RotationOffset, 0.f)).Quaternion());
+
+
+	const bool bOverlapping = CheckForOverlap();
+	 bCanBuild = !bOverlapping;
+
+	// 스냅 포인트에만 배치 가능한 것들 인데 스냅 포인트를 못 찾았으면 무조건 불가
+	if (bSelectedBuildableStructureValid && SelectedBuildableStructure.bCanOnlyBePlacedAtSnappingPoints && !bSnapFound)
+	{
+		bCanBuild = false;
+	}
+
+	...
+
+}
+
+bool UBuildingComponent::DetectSnappingPoint(AActor* HitActor, UPrimitiveComponent* HitComponent, FTransform& OutTransform) const
+{
+	...
+
+	const ABuildableMaster* HandBuildable = Cast<ABuildableMaster>(SelectedBuildableStructure.BuildableActorToSpawn->GetDefaultObject());
+	if (!HandBuildable || HandBuildable->SnapTagName.IsNone())
+	{
+		return false;
+	}
+
+	return HitBuildable->GetNearestSnappingPointTransform(CurrentBuildLocationTransform.GetLocation(), HandBuildable->SnapTagName,OutTransform);
+}
+
+
+
+/*건축물Actor에서 가장 가까운 스냅포인트를 찾아낸다. */
+bool ABuildableMaster::GetNearestTransform(const TArray<FTransform>& Transforms, const FVector& Location, FTransform& OutTransform)
+{
+	if (Transforms.Num() == 0)
+	{
+		return false;
+	}
+
+	OutTransform = Transforms[0];
+	float NearestDistSq = FVector::DistSquared(Location, OutTransform.GetLocation());
+
+	for (int32 Index = 1; Index < Transforms.Num(); ++Index)
+	{
+		const float DistSq = FVector::DistSquared(Location, Transforms[Index].GetLocation());
+		if (DistSq < NearestDistSq)
+		{
+			NearestDistSq = DistSq;
+			OutTransform = Transforms[Index];
+		}
+	}
+
+	return true;
+}
+
+
+void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const FDataTableRowHandle& BuildableDataRow, bool bCurrentCanBuild, int32 InventorySourceIndex)
+{
+	...
+
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	ABuildableMaster* NewBuildable = World->SpawnActorDeferred<ABuildableMaster>(BuildableData->BuildableActorToSpawn, SpawnTransform);
+	if (NewBuildable)
+	{
+		NewBuildable->BuildableDataRow = BuildableDataRow;
+		NewBuildable->FinishSpawning(SpawnTransform);
+	}
+
+	//인벤토리의 건축물은 제거한다.
+	if (UExtenedInventoryComponent* Inventory = USurvivalStatics::GetComponentFromActor<UExtenedInventoryComponent>(GetOwner()))
+	{
+		Inventory->RemoveItemAtSlotIndex(InventorySourceIndex);
+	}
+
+	StopBuildMode();
+}
+
 ```
 
 
 - **스냅(Snapping) 연산**: 카메라 시선 방향 트레이싱을 통해 설치 위치를 추적하고, 인접한 건축물(`ABuildableMaster`)의 스냅 포인트를 감지하여 자동 정렬 및 회전 지원.     
+- **건축물 생성** : 원하는 위치에 건축물을 생성해 만들어낸다.
 
 
 ## AnimalAI
