@@ -22,6 +22,8 @@ Unreal Engine 5를 활용해 자원 채집부터 기지 구축까지의 메커�
 
  * [BuildingSystem](#BuildingSystem)
 
+ * [Character](#character)
+
  * [Animal AI](#AnimalAI)
 
 </p>
@@ -745,6 +747,23 @@ void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const 
 - **스냅(Snapping) 연산**: 카메라 시선 방향 트레이싱을 통해 설치 위치를 추적하고, 인접한 건축물(`ABuildableMaster`)의 스냅 포인트를 감지하여 자동 정렬 및 회전 지원.     
 - **건축물 생성** : 원하는 위치에 건축물을 생성해 만들어낸다.
 
+
+## Character
+
+**Character** 클래스는 **컴포넌트 기반 아키텍처(Component-Based Architecture)** 로 설계되어, 캐릭터의 주요 기능(상호작용, 전투, 인벤토리, 제작 등)을 전용 컴포넌트로 분리하고 모듈화하여 유지보수성과 확장성을 높였습니다.
+
+| **`UBasicMovementComponent`** | 캐릭터의 기본 이동 및 조작 로직 관리 |  
+| **`UInputUIComponent`** | UI 입출력 및 사용자 인터페이스 전환 처리 |  
+| **`UReplicationComponent`** | 멀티플레이어 환경을 위한 네트워크 동기화 보조 |  
+| **`UInteractionComponent`** | 필드 내 오브젝트(자원, 아이템 등)와의 상호작용 레이캐스트 및 로직 처리 |  
+| **`UAttributeComponent`** | HP, 체력 등 캐릭터 속성 관리 및 사망 이벤트(`OnDeath`) 바인딩 |  
+| **`URespawnComponent`** | 사망 후 리스폰 및 위치 재설정 로직 처리 |  
+| **`UInventoryComponent`** | 아이템 슬롯 관리, 자동 습득 및 드롭 기능 제공 |  
+| **`UCraftingComponent`** | 아이템 제작 레시피 조회 및 제작 타이머/프로세스 관리 |  
+| **`UEquipmentComponent`** | 장비 착용/해제 및 메시 소켓 부착(Attach) 관리 |  
+| **`UCombatComponent`** | 공격, 피격, 무기 매커니즘 등 전투 시스템 관리 |  
+| **`UBuildingComponent`** | 구조물 설치 및 건축 프리뷰/건설 시스템 처리 |  
+ > 이런식으로 컴포넌트 기반으로 제작되어 사용되고 있습니다.
 
 ## AnimalAI
   
