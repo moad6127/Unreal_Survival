@@ -763,7 +763,40 @@ void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const 
 | **`UEquipmentComponent`** | 장비 착용/해제 및 메시 소켓 부착(Attach) 관리 |  
 | **`UCombatComponent`** | 공격, 피격, 무기 매커니즘 등 전투 시스템 관리 |  
 | **`UBuildingComponent`** | 구조물 설치 및 건축 프리뷰/건설 시스템 처리 |  
- > 이런식으로 컴포넌트 기반으로 제작되어 사용되고 있습니다.
+
+
+
 
 ## AnimalAI
   
+## Animal AI
+
+`AAnimalCharacter`와 `AAnimalAIController`를 중심으로 AI Perception 및 Behavior Tree Service를 연동하여 자율적으로 행동하고 플레이어를 감지·추격하는 동적 AI 시스템을 구축했습니다.
+
+### 1. AI Perception & Controller (`AnimalAIController`)
+```C++
+```
+
+- **시각 센서 구성**: `UAISenseConfig_Sight` 기반으로 AI 감지 반경(`SightRadius`: 3000) 및 상실 반경(`LoseSightRadius`: 3300), 시야각(65도)을 설정하여 타겟을 탐지합니다.
+- **적대/우호 피아식별**: `DetectionByAffiliation` 옵션을 통해 플레이어 및 타 객체를 유연하게 감지하도록 구성했습니다.
+- **블랙보드 초기화**: Controller 승권(Possess) 시 Behavior Tree를 실행하고, 소유한 `AnimalCharacter`의 기본 스탯(스폰 위치, 이동 속도 등)을 Blackboard 데이터로 동기화합니다.
+
+### 2. 가중치 기반 대기 애니메이션 서비스 (`AnimalIdleAnimService`)
+
+```C++
+```
+- **다양한 Idle 행동 분기**: 단순 대기 상태에 그치지 않고, `EAnimalIdleAction`(숨쉬기, 둘러보기, 엎드리기, 하울링 등) 상태를 가중치(`Weight`) 기반 확률 계산으로 선택하여 실행합니다.
+- **Service 메모리 관리**: `FBTAnimalIdleMemory` 구조체를 통해 노드 메모리 단위로 다음 행동까지의 타이머(`TimeUntilNextAction`)를 정밀하게 제어합니다.
+- **인터럽트 처리**: `RequestEndIdle()` 호출 시 대기 상태를 즉시 이탈하여 반응성을 높였습니다.
+
+
+### 3. 추격 범위 제한 및 복귀 메커니즘 (`ChaseLeashService`)
+
+
+```C++
+```
+- **Leash(이탈 거리) 시스템**: 추격을 시작한 원점(`ChaseOriginLocation`)과 시간을 Blackboard에 기록합니다.
+- **원점 복귀 조건**: 
+  - 추격 시작 위치로부터 일정 거리(`MaxChaseDistance`) 이상 멀어지거나,
+  - 제한 시간(`MaxChaseTime`)을 초과할 경우 추격을 중단하고 복귀(Leash Return) 상태로 전환합니다.
+- **이동 속도 동적 제어**: 평시 경계 속도(`AlertWalkSpeed`)와 복귀/추격 속도를 상황에 맞게 전환하도록 구현했습니다.
