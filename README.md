@@ -765,11 +765,10 @@ void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const 
 | **`UBuildingComponent`** | 구조물 설치 및 건축 프리뷰/건설 시스템 처리 |  
 
 
-
-
-## AnimalAI
   
 ## Animal AI
+
+<img width="1043" height="613" alt="Image" src="https://github.com/user-attachments/assets/9230f98c-f33c-4429-96b9-0dfd7396a801" />
 
 `AAnimalCharacter`와 `AAnimalAIController`를 중심으로 AI Perception 및 Behavior Tree Service를 연동하여 자율적으로 행동하고 플레이어를 감지·추격하는 동적 AI 시스템을 구축했습니다.
 
