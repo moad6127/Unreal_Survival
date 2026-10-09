@@ -24,8 +24,6 @@ AAnimalAIController::AAnimalAIController()
 	PerceptionComponent->ConfigureSense(*SightConfig);
 	PerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAnimalAIController::HandlePerceptionUpdated);
-
-
 }
 
 

@@ -190,7 +190,7 @@ void AAnimalCharacter::DoAttack()
 		QueryParams
 	);
 
-	DrawDebugSphere(GetWorld(), QueryLocation, AttackRadius, 12, FColor::Red, false, 1.f);
+	//DrawDebugSphere(GetWorld(), QueryLocation, AttackRadius, 12, FColor::Red, false, 1.f);
 
 	TSet<AActor*> HitActors;
 	for (const FOverlapResult& Overlap : Overlaps)

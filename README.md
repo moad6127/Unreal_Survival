@@ -774,11 +774,56 @@ void UBuildingComponent::SpawnBuildable(const FTransform& SpawnTransform, const 
 
 ### 1. AI Perception & Controller (`AnimalAIController`)
 ```C++
-```
 
-- **시각 센서 구성**: `UAISenseConfig_Sight` 기반으로 AI 감지 반경(`SightRadius`: 3000) 및 상실 반경(`LoseSightRadius`: 3300), 시야각(65도)을 설정하여 타겟을 탐지합니다.
+AAnimalAIController::AAnimalAIController()
+{
+	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
+	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	
+	...
+
+	PerceptionComponent->ConfigureSense(*SightConfig);
+	PerceptionComponent->SetDominantSense(SightConfig->GetSenseImplementation());
+	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAnimalAIController::HandlePerceptionUpdated);
+}
+
+void AAnimalAIController::HandlePerceptionUpdated(AActor* PerceivedActor, FAIStimulus Stimulus)
+{
+	if (!Stimulus.WasSuccessfullySensed())
+	{
+		return;
+	}
+
+	if (APawn* SeenPawn = Cast<APawn>(PerceivedActor))
+	{
+		NotifyThreatDetected(SeenPawn);
+	}
+}
+
+
+void AAnimalAIController::NotifyThreatDetected(APawn* NewThreat)
+{
+
+	...
+
+	// 이미 위협이 지정돼 있으면 덮어쓰지 않음
+	if (BlackboardComp->GetValueAsObject(TEXT("ThreatPawn")))
+	{
+		return;
+	}
+
+	BlackboardComp->SetValueAsObject(TEXT("ThreatPawn"), NewThreat);
+	ResetChaseLeash();
+	if (AAnimalCharacter* Animal = Cast<AAnimalCharacter>(GetPawn()))
+	{
+		Animal->SetAlertMovementSpeed();
+	}
+}
+
+```
+- **시각 센서 구성**: `UAISenseConfig_Sight` 기반으로 AI 감지 반경 및 상실 반경, 시야각을 `AIController`에서 설정하여 타겟을 탐지합니다.
 - **적대/우호 피아식별**: `DetectionByAffiliation` 옵션을 통해 플레이어 및 타 객체를 유연하게 감지하도록 구성했습니다.
-- **블랙보드 초기화**: Controller 승권(Possess) 시 Behavior Tree를 실행하고, 소유한 `AnimalCharacter`의 기본 스탯(스폰 위치, 이동 속도 등)을 Blackboard 데이터로 동기화합니다.
+- **블랙보드 초기화**: Controller의 Possess 시 Behavior Tree를 실행하고, 소유한 `AnimalCharacter`의 기본 스탯(스폰 위치, 이동 속도 등)을 Blackboard 데이터로 동기화합니다.
 
 ### 2. 가중치 기반 대기 애니메이션 서비스 (`AnimalIdleAnimService`)
 
