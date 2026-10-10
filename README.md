@@ -828,9 +828,60 @@ void AAnimalAIController::NotifyThreatDetected(APawn* NewThreat)
 ### 2. 가중치 기반 대기 애니메이션 서비스 (`AnimalIdleAnimService`)
 
 ```C++
+
+/*Idle을 선택할 Service클래스를 구성한다음 TickNode에서 계산한다.*/
+void UAnimalIdleAnimService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+
+	...
+
+	AAnimalCharacter* Animal = OwnerComp.GetAIOwner() ? Cast<AAnimalCharacter>(OwnerComp.GetAIOwner()->GetPawn()) : nullptr;
+	if (!Animal)
+	{
+		return;
+	}
+
+	if (Animal->WantsToEndIdle())
+	{
+		Animal->SetIdleAction(EAnimalIdleAction::Breathe);
+		return; // 다음 타이머를 다시 걸지 않음 ? Task가 끝내주길 기다림
+	}
+
+	PickNextIdleAction(Animal);
+	Memory->TimeUntilNextAction = FMath::FRandRange(MinIdleDuration, MaxIdleDuration);
+}
+
+/*가중치를 사용해서 어떤 행동을 많이 할건지 만든다.*/
+void UAnimalIdleAnimService::PickNextIdleAction(AAnimalCharacter* Animal) const
+{
+	const TArray<FAnimalIdleActionWeight>& Options = Animal->AvailableIdleActions;
+	if (Options.Num() == 0)
+	{
+		return;
+	}
+
+	float TotalWeight = 0.f;
+	for (const FAnimalIdleActionWeight& Option : Options)
+	{
+		TotalWeight += Option.Weight;
+	}
+
+	float Roll = FMath::FRandRange(0.f, TotalWeight);
+	for (const FAnimalIdleActionWeight& Option : Options)
+	{
+		Roll -= Option.Weight;
+		if (Roll <= 0.f)
+		{
+			Animal->SetIdleAction(Option.Action);
+			return;
+		}
+	}
+}
+
 ```
 - **다양한 Idle 행동 분기**: 단순 대기 상태에 그치지 않고, `EAnimalIdleAction`(숨쉬기, 둘러보기, 엎드리기, 하울링 등) 상태를 가중치(`Weight`) 기반 확률 계산으로 선택하여 실행합니다.
-- **Service 메모리 관리**: `FBTAnimalIdleMemory` 구조체를 통해 노드 메모리 단위로 다음 행동까지의 타이머(`TimeUntilNextAction`)를 정밀하게 제어합니다.
+
 - **인터럽트 처리**: `RequestEndIdle()` 호출 시 대기 상태를 즉시 이탈하여 반응성을 높였습니다.
 
 
