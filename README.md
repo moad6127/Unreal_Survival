@@ -895,3 +895,13 @@ void UAnimalIdleAnimService::PickNextIdleAction(AAnimalCharacter* Animal) const
   - 추격 시작 위치로부터 일정 거리(`MaxChaseDistance`) 이상 멀어지거나,
   - 제한 시간(`MaxChaseTime`)을 초과할 경우 추격을 중단하고 복귀(Leash Return) 상태로 전환합니다.
 - **이동 속도 동적 제어**: 평시 경계 속도(`AlertWalkSpeed`)와 복귀/추격 속도를 상황에 맞게 전환하도록 구현했습니다.
+
+### 4. 전리품 드랍 시스템 (`LootDropComponent`)
+
+```C++
+```
+
+
+- **컴포넌트 기반 모듈화**: `UExtendedAttributeComponent`의 사망 이벤트(`OnDeath`)를 동적으로 바인딩하여, AI가 처치되는 시점에 독립적으로 전리품 로직이 실행되도록 설계했습니다.
+
+- **확률형 아이템 드랍**: `FLootDropEntry` 구조체를 통해 데이터 테이블 기반 아이템과 드랍 확률(`DropChance`, 0.0 ~ 1.0)을 유연하게 설정할 수 있습니다.
