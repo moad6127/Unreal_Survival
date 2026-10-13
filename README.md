@@ -951,6 +951,48 @@ void UChaseLeashService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Node
 ### 4. 전리품 드랍 시스템 (`LootDropComponent`)
 
 ```C++
+
+void ULootDropComponent::HandleOnDeath()
+{
+
+	...
+
+	// Table에서 설정한 Drop아이템과 Chance를 바탕으로 아이템을 생성할 준비를 한다.
+	for (const FLootDropEntry& Entry : LootTable)
+	{
+		if (!Entry.Item.DataTable || FMath::FRand() > Entry.DropChance)
+		{
+			continue;
+		}
+
+		SpawnLootItem(Entry);
+	}
+}
+
+
+void ULootDropComponent::SpawnLootItem(const FLootDropEntry& Entry)
+{
+
+	...
+
+	FInventoryItemSlot ItemSlot;
+	ItemSlot.Item = Entry.Item;
+	ItemSlot.Amount = 1; /* 나중에 스택으로 할경우 해당기능으로FMath::RandRange(Entry.MinQuantity, Entry.MaxQuantity);*/
+
+	//정해진 아아템을 Spawn한다음 필요한 정보들을 설정한다.
+	FVector SpawnLocation = Owner->GetActorLocation() + FVector(FMath::FRandRange(-30.f, 30.f), FMath::FRandRange(-30.f, 30.f), 0.f);
+	SpawnLocation.Z += 50.f;
+	const FTransform SpawnTransform(Owner->GetActorRotation(), SpawnLocation, FVector::OneVector);
+
+	APickupItem* SpawnedItem = World->SpawnActorDeferred<APickupItem>(PickupItemClass, SpawnTransform);
+	if (SpawnedItem)
+	{
+		SpawnedItem->SetInventoryItemSlot(ItemSlot);
+		SpawnedItem->SetSimulatePhysics(true);
+		SpawnedItem->FinishSpawning(SpawnTransform);
+	}
+}
+
 ```
 
 
